@@ -3,8 +3,6 @@ package com.example.project.entity;
 import  com.example.project.enums.OrderStatus;
 import  jakarta.persistence.*;
 import  lombok.Data;
-import lombok.Generated;
-import org.intellij.lang.annotations.Identifier;
 
 import  java.math.BigDecimal;
 import  java.time.LocalDateTime;

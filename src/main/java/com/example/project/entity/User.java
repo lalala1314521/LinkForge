@@ -1,7 +1,6 @@
 package com.example.project.entity;
 
-import com.example.project.entity.UserStatus;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.example.project.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,7 +27,7 @@ public class User {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(lenght = 50)
+    @Column(length = 50)
     private String nickname;
 
     @Column(length = 20)
@@ -41,13 +40,16 @@ public class User {
     @Column(name = "status", length = 20, nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate(){
         createdAt = LocalDateTime.now();
-        updateAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate

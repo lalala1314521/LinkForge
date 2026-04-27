@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: reference-self
+
+  profiles:
+    active: dev
+  # ---- JWT ----
+
+jwt:
+  secret: "SpringBootTutorialSecretKey_MinLength_32chars_OK"
+  expiration-ms: 86400000 # 24小时

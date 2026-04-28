@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.project.mapper.OrderMapper">
+    <!--通用结果映射-->
+    <resultMap id="OrderResultMap" type="com.example.project.entity.Order">
+        <id     column="id"           property="id"/>
+        <result column="order_no"     property="orderNo"/>
+        <result column="user_id"      property="userId"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="status"       property="status"/>
+        <result column="remark"       property="remark"/>
+        <result column="created_at"   property="createdAt"/>
+        <result column="updated_at"   property="updatedAt"/>
+    </resultMap>
+
+    <!--动态条件分页查询-->
+    <select id="selectByCondition" resultMap="OrderResultMap">
+        SELECT * FROM orders
+        <where>
+            <if test="req.userId != null">
+                AND user_id = #{req.userId}
+            </if>
+            <if test="req.status != null">
+                AND status = #{req.status}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(1) FROM orders
+        <where>
+            <if test="req.userId != null">
+                AND user_id = #{req.userId}
+            </if>
+            <if test="req.status != null">
+                AND status = #{req.status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByCursor" resultMap="OrderResultMap">
+        SELECT * FROM orders
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="lastId != null and lastId > 0">
+                AND id &lt; #{lastId}
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT #{size}
+    </select>
+</mapper>

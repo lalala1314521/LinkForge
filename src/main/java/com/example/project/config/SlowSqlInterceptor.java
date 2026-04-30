@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Intercepts({
         @Signature(type = Executor.class, method = "query",
-                   args = {MyBatisConfig.class, Object.class, RowBounds.class, ResultHandler.class}),
+                   args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
         @Signature(type = Executor.class, method = "update",
                    args = {MappedStatement.class, Object.class})
 })

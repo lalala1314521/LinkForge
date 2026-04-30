@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handlerException(Exception e) {
-        log.info("未捕获异常： ", e);
+        log.error("未捕获异常： ", e);
         return Result.error(ErrorCode.INTERNAL_ERROR);
     }
 }

@@ -23,6 +23,9 @@ public interface UserMapper {
     @Select("SELECT *FROM users WHERE id = #{id}")
     User selectById(Long id);
 
+    @Select("SELECT * FROM users WHERE username = #{username} LIMIT 1")
+    User findByUsername(String username);
+
     @Select("SELECT COUNT(1) > 0 FROM users WHERE username = #{username}")
     boolean existsByUsername(String username);
 

@@ -1,11 +1,78 @@
 spring:
   application:
-    name: reference-self
+    name: reference
 
   profiles:
-    active: dev
-  # ---- JWT ----
+    active: dev   # 默认激活开发环境，生产部署时改为 prod
 
+  # ---- 数据源（使用 HikariCP 连接池）----
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 600000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+  # ---- JPA / Hibernate ----
+  jpa:
+    hibernate:
+      ddl-auto: none          # 项目主要使用 MyBatis，JPA 仅作 Entity 映射，不自动管理 DDL
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ---- Redis ----
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          min-idle: 2
+          max-idle: 8
+          max-active: 16
+
+# ---- MyBatis ----
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+
+# ---- JWT ----
 jwt:
   secret: "SpringBootTutorialSecretKey_MinLength_32chars_OK"
-  expiration-ms: 86400000 # 24小时
+  expiration-ms: 86400000   # 24 小时
+
+# ---- Actuator ----
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ---- 任务2: Redisson 分布式锁（单机模式，复用 Redis 配置）----
+# redisson-spring-boot-starter 会自动读取 spring.data.redis 的连接信息
+# 如需覆盖，可在此追加 spring.data.redis.redisson.config 配置
+
+# ---- 任务1: Swagger/OpenAPI 配置 ----
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    groups-order: ASC
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+  default-produces-media-type: application/json

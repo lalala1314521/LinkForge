@@ -1,0 +1,88 @@
+package com.example.project.controller;
+
+import com.example.project.common.PageResult;
+import com.example.project.common.Result;
+import com.example.project.dto.request.OrderCreateRequest;
+import com.example.project.dto.request.OrderQueryRequest;
+import com.example.project.dto.response.OrderResponse;
+import com.example.project.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * 订单管理接口（RESTful 风格）
+ */
+@RestController
+@RequestMapping("/api/orders")
+@RequiredArgsConstructor
+@Tag(name = "订单管理", description = "订单创建、查询、支付、取消相关接口（所有接口需认证）")
+public class OrderController {
+
+    private final OrderService orderService;
+
+    /**
+     * POST /api/orders
+     * 创建订单（已集成分布式锁，同一用户5s内不可重复提交）
+     */
+    @PostMapping
+    @Operation(summary = "创建订单",
+            description = "创建新订单，初始状态为 PENDING。已集成 Redisson 分布式锁，同一用户5秒内禁止重复提交",
+            security = @SecurityRequirement(name = "Bearer"))
+    public Result<Long> createOrder(@Valid @RequestBody OrderCreateRequest request) {
+        return Result.success(orderService.createOrder(request));
+    }
+
+    /**
+     * GET /api/orders/{id}
+     * 根据 ID 查询订单
+     */
+    @GetMapping("/{id}")
+    @Operation(summary = "查询订单详情", description = "根据订单ID查询订单信息", security = @SecurityRequirement(name = "Bearer"))
+    @Parameter(name = "id", description = "订单ID", example = "1", required = true)
+    public Result<OrderResponse> getOrderById(@PathVariable Long id) {
+        return Result.success(orderService.getOrderById(id));
+    }
+
+    /**
+     * GET /api/orders
+     * 分页查询订单列表
+     */
+    @GetMapping
+    @Operation(summary = "分页查询订单列表", description = "支持按用户ID和状态过滤，结果按ID倒序", security = @SecurityRequirement(name = "Bearer"))
+    public Result<PageResult<OrderResponse>> queryOrders(@Valid OrderQueryRequest request) {
+        return Result.success(orderService.queryOrders(request));
+    }
+
+    /**
+     * POST /api/orders/{id}/pay
+     * 支付订单
+     */
+    @PostMapping("/{id}/pay")
+    @Operation(summary = "支付订单",
+            description = "将订单状态从 PENDING 改为 PAID，支付成功后异步触发下游通知",
+            security = @SecurityRequirement(name = "Bearer"))
+    @Parameter(name = "id", description = "订单ID", example = "1", required = true)
+    public Result<Void> payOrder(@PathVariable Long id) {
+        orderService.payOrder(id);
+        return Result.success();
+    }
+
+    /**
+     * POST /api/orders/{id}/cancel
+     * 取消订单
+     */
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "取消订单",
+            description = "取消订单（COMPLETED状态除外），取消后异步触发库存回滚",
+            security = @SecurityRequirement(name = "Bearer"))
+    @Parameter(name = "id", description = "订单ID", example = "1", required = true)
+    public Result<Void> cancelOrder(@PathVariable Long id) {
+        orderService.cancelOrder(id);
+        return Result.success();
+    }
+}

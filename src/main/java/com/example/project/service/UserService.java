@@ -20,7 +20,7 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
-    PageResult<UserResponse> queryUser(UserQueryRequest request);
+    PageResult<UserResponse> queryUsers(UserQueryRequest request);
 
     void updateUserInfo(Long id, UserUpdateRequest request);
 

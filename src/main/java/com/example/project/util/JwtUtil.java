@@ -25,7 +25,7 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    /* 生成Token (subject = userId, claim usernmae */
+    /* 生成Token (subject = userId, claim username) */
     public String generateToken(Long userId, String username) {
         Date now = new Date();
         return Jwts.builder()

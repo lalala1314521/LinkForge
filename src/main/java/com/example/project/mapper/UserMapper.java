@@ -4,7 +4,6 @@ import com.example.project.dto.request.UserQueryRequest;
 import com.example.project.entity.User;
 import com.example.project.enums.UserStatus;
 import org.apache.ibatis.annotations.*;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 

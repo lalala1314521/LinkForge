@@ -35,7 +35,7 @@ public class UserController {
      */
     @PostMapping
     @Operation(summary = "注册用户", description = "公共接口，无需认证，用户名唯一，密码需包含大小写字母和数字")
-    public Result<Long> createUser(@Valid@RequestBody UserCreateRequest request) {
+    public Result<Long> createUser(@Valid @RequestBody UserCreateRequest request) {
         return Result.success(userService.createUser(request));
     }
 

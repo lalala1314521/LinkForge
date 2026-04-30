@@ -3,7 +3,6 @@ package com.example.project.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import  lombok.Data;
-import org.springframework.security.core.parameters.P;
 
 @Data
 @Schema(description = "用户创建/注册请求")
@@ -17,7 +16,7 @@ public class UserCreateRequest {
 
     @NotBlank(message = "密码不能为空")
     @Size(min = 8, max = 100, message = "密码长度为8-100个字符")
-    @Pattern(regexp = "^(?=.*[A-Z])(?.*[a-z])(?=.*\\d).+$", message = "密码必须包含大写字母、小写字母和数字")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$", message = "密码必须包含大写字母、小写字母和数字")
     @Schema(description = "密码(8-100位，需包含大小写字母和数字)", example = "NewPass123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 

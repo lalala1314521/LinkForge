@@ -29,7 +29,7 @@ public class UserResponse {
     @Schema(description = "邮箱", example = "admin@example.com")
     private String email;
 
-    @Schema(description = "用户状态，ACTIVE-正常， DISABLE-禁用, DELETED-已删除", example = "ACTIVE")
+    @Schema(description = "用户状态，ACTIVE-正常， DISABLED-禁用, DELETED-已删除", example = "ACTIVE")
     private UserStatus status;
 
     @Schema(description = "创建时间", example = "2024-01-01T10:00:00")

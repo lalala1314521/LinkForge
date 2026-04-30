@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse getOrderById(Long id) {
         Order order = orderMapper.selectById(id);
         if(order == null){
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
         }
         return toResponse(order);
     }

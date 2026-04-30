@@ -1,11 +1,11 @@
 package com.example.project.entity;
 
-import  com.example.project.enums.OrderStatus;
-import  jakarta.persistence.*;
-import  lombok.Data;
+import com.example.project.enums.OrderStatus;
+import jakarta.persistence.*;
+import lombok.Data;
 
-import  java.math.BigDecimal;
-import  java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 订单实体
@@ -26,10 +26,10 @@ public class Order {
     @Column(name = "order_no", nullable = false, length = 32)
     private String orderNo;
 
-    @Column(name = "uset_id", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "toatal_amount", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)

@@ -1,4 +1,4 @@
-package  com.example.project.util;
+package com.example.project.util;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

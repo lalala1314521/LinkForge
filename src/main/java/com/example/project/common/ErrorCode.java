@@ -1,6 +1,6 @@
-package  com.example.project.common;
+package com.example.project.common;
 
-import  lombok.Getter;
+import lombok.Getter;
 
 /**
  * 业务错误码枚举

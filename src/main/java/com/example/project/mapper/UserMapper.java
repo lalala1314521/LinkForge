@@ -15,12 +15,12 @@ public interface UserMapper {
 
     @Insert("""
             INSERT INTO user(username, password, nickname, phone, email, status, created_at, updated_at)
-            VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email} #{status}, NOW(), NOW())
+            VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{status}, NOW(), NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(User user);
 
-    @Select("SELECT *FROM users WHERE id = #{id}")
+    @Select("SELECT * FROM users WHERE id = #{id}")
     User selectById(Long id);
 
     @Select("SELECT * FROM users WHERE username = #{username} LIMIT 1")
@@ -50,9 +50,9 @@ public interface UserMapper {
                     @Param("phone") String phone,
                     @Param("email") String email);
 
-    @Update("UPDATE users SET status=#{status}, updated_at=NOW() WHERE id=@{id}")
+    @Update("UPDATE users SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
     void updateStatus(@Param("id") Long id, @Param("status") UserStatus status);
 
-    @Update("UPDATE user SET status=#{status}, updated_at=NOW() WHERE id=#{if}")
+    @Update("UPDATE user SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
     void logicalDelete(@Param("id") Long id, @Param("status") UserStatus status);
 }

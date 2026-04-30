@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
-        if(user.getStatus() == UserStatus.DISABLE) {
+        if(user.getStatus() == UserStatus.DISABLED) {
             throw new BusinessException(ErrorCode.ACCOUNT_DISABLED);
         }
         String token = jwtUtil.generateToken(user.getId(), user.getUsername());

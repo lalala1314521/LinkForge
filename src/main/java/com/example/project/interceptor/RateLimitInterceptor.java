@@ -114,7 +114,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             //多级代理时获取第一个IP
             return ip.split(",")[0].trim();
         }
-        ip = request.getHeader("X-Real_IP");
+        ip = request.getHeader("X-Real-IP");
         if(ip != null && !ip.isEmpty() && !"unknow".equalsIgnoreCase(ip)){
             return ip;
         }

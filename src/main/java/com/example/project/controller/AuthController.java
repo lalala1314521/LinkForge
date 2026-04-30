@@ -27,7 +27,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "验证用户名密码，成功后返回 JWT Token 24小时有效")
-    public Result<LoginResponse> login(@Valid@RequestBody LoginRequest request) {
+    public Result<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         return Result.success(userService.login(request));
     }
 

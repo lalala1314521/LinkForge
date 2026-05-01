@@ -23,7 +23,6 @@ import com.example.project.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -90,7 +89,6 @@ public class UserServiceImpl implements UserService {
     //查询用户
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "user", key = "#id", unless = "#result == null")
     public UserResponse getUserById(Long id) {
         User user = userMapper.selectById(id);
         if(user == null){

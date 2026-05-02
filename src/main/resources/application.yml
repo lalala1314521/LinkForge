@@ -41,6 +41,35 @@ spring:
           min-idle: 2
           max-idle: 8
           max-active: 16
+  #kafka订单异步通知
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      #发送失败时重试
+      retries: 3
+      #等待说有副本确认（数据安全优先）
+      acks: all
+      #批量发送优化
+      batch-size: 16384 #16kb
+      buffer-memory: 33554432 #32kb
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        #启用幂等性生产者（防止网络抖动导致冲复写入）
+        enable.idempotence: true
+    consumer:
+      group-id: order-notification-group
+      auto-offset-reset: earliest       # 新消费者从最早的消息开始消费
+      enable-auto-commit: false         # 手动提交 offset，保证消息不丢失
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.example.project.mq.dto
+      listener:
+        # 一次拉取多少条消息批量处理
+        batch-listener: false            # 单条模式（你的场景量不大）
+        ack-mode: manual_immediate        # 手动确认：处理完一条立刻 ack
+        concurrency: 3                    # 3 个并发消费者线程
 
 # ---- MyBatis ----
 mybatis:

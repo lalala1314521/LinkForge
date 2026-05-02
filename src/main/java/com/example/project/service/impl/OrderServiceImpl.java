@@ -15,19 +15,20 @@ import com.example.project.dto.request.OrderQueryRequest;
 import com.example.project.dto.response.OrderResponse;
 import com.example.project.entity.Order;
 import com.example.project.enums.OrderStatus;
-import com.example.project.event.OrderCancelledEvent;
-import com.example.project.event.OrderPaidEvent;
 import com.example.project.mapper.OrderMapper;
 import com.example.project.mapper.UserMapper;
+import com.example.project.mq.producer.OrderKafkaProducer;
 import com.example.project.service.OrderService;
 import com.example.project.util.DistributedLockUtil;
 import com.example.project.util.SnowflakeIdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.project.mq.dto.OrderCancelledMessage;
+import com.example.project.mq.dto.OrderPaidMessage;
+import com.example.project.mq.producer.OrderKafkaProducer;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final SnowflakeIdGenerator idGenerator;
     private final DistributedLockUtil distributedLockUtil;
-    private final ApplicationEventPublisher eventPublisher;
+    private final OrderKafkaProducer orderKafkaProducer;
     private final UserMapper userMapper;
 
     @Override
@@ -102,9 +103,14 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateStatus(id, OrderStatus.PAID);
         log.info("订单支付成功 : id={}", id);
 
-        //发布支付成功事件， 触发异步通知
-        eventPublisher.publishEvent(new OrderPaidEvent(this, order.getId(), order.getOrderNo(),
-                order.getUserId(), order.getTotalAmount()));
+        // 发布支付成功事件，触发异步通知（通过 Kafka）
+        orderKafkaProducer.sendOrderPaid(OrderPaidMessage.builder()
+                .orderId(order.getId())
+                .orderNo(order.getOrderNo())
+                .userId(order.getUserId())
+                .totalAmount(order.getTotalAmount())
+                .timestamp(System.currentTimeMillis())
+                .build());
     }
 
     @Override
@@ -120,7 +126,13 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateStatus(id, OrderStatus.CANCELLED);
         log.info("订单取消成功：id={}", id);
 
-        eventPublisher.publishEvent(new OrderCancelledEvent(this, order.getId(), order.getOrderNo(), order.getUserId()));
+        // 发布订单取消事件（通过 Kafka）
+        orderKafkaProducer.sendOrderCancelled(OrderCancelledMessage.builder()
+                .orderId(order.getId())
+                .orderNo(order.getOrderNo())
+                .userId(order.getUserId())
+                .timestamp(System.currentTimeMillis())
+                .build());
     }
 
 

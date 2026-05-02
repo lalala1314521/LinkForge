@@ -26,8 +26,7 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
-        // Key 用 String 序列化，Value 用默认（JDK 序列化）
-        // 注：缓存对象需实现 Serializable；如需 JSON 序列化，使用 JacksonRedisSerializer
+        // Key 用 String 序列化，Value 用 Jackson3 JSON 序列化（含 @class 类型信息）
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))

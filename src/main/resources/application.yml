@@ -1,6 +1,6 @@
 spring:
   application:
-    name: reference
+    name: LinkForge
 
   profiles:
     active: dev   # 默认激活开发环境，生产部署时改为 prod

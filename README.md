@@ -399,13 +399,17 @@ redis-server
 
 ```bash
 # Windows
-cd F:\kafka\kafka_2.13-4.1.2
+# ① 进入脚本目录
+cd F:\kafka\kafka_2.13-4.1.2\bin\windows
 
-# 启动 Zookeeper
-.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+# ② 生成集群 ID（复制输出的 UUID）
+.\kafka-storage.bat random-uuid
 
-# 新开终端，启动 Kafka Broker
-.\bin\windows\kafka-server-start.bat .\config\server.properties
+# ③ 格式化存储（替换为上一步的 UUID）
+.\kafka-storage.bat format -t <UUID> -c ..\..\config\server.properties --standalone
+
+# ④ 启动 Kafka
+.\kafka-server-start.bat ..\..\config\server.properties
 
 # 创建所需 Topic (可选，Kafka 可自动创建)
 .\bin\windows\kafka-topics.bat --create --topic order-paid --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
@@ -441,7 +445,7 @@ export REDIS_HOST=redis-cluster
 export REDIS_PORT=6379
 export REDIS_PASSWORD=***
 export JWT_SECRET=your-production-secret-key-at-least-32-chars
-java -jar reference-self.jar --spring.profiles.active=prod
+java -jar LinkForge.jar --spring.profiles.active=prod
 ```
 
 ### 6. 构建并启动
@@ -455,7 +459,7 @@ java -jar reference-self.jar --spring.profiles.active=prod
 
 # 或者打包后运行 JAR
 ./gradlew build
-java -jar build/libs/reference-self-0.0.1-SNAPSHOT.jar
+java -jar build/libs/LinkForge-0.0.1-SNAPSHOT.jar
 ```
 
 启动成功后，控制台应看到类似以下输出：

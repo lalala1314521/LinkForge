@@ -30,7 +30,7 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("reference API")
+                        .title("LinkForge API")
                         .version("1.0")
                         .description("业务管理平台接口文档\n\n" +
                                 "## 认证方式\n" +
@@ -38,7 +38,7 @@ public class OpenApiConfig {
                                 "2.点击右上角 **Authorize** 按钮\n" +
                                 "3.输入 ’Bearer <your_token>‘ 即可认证后续清求")
                         .contact(new Contact()
-                                .name("reference 开发团队")
+                                .name("LinkForge 开发团队")
                                 .email("dev@example.com")))
                 .components(new Components()
                         .addSecuritySchemes("Bearer", bearerScheme))

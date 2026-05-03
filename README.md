@@ -15,10 +15,10 @@
 | 分布式锁 | Redisson | 4.3.0 | 基于 Redis 的分布式锁 |
 | 安全认证 | Spring Security + jjwt | Security 6.x / jjwt 0.12.5 | 无状态 JWT 认证 |
 | 接口限流 | Google Guava | 33.4.0-jre | 多维度接口限流 |
-| 消息队列 | Apache Kafka | - | 订单事件异步通知 |
+| 消息队列 | Apache Kafka | 4.1.2 | 订单事件异步通知 |
 | 接口文档 | SpringDoc OpenAPI (Swagger UI) | 2.8.6 | REST API 在线文档 |
 | 参数校验 | Jakarta Validation | 3.x | 请求参数校验 |
-| 构建工具 | Gradle | - | 项目构建与依赖管理 |
+| 构建工具 | Gradle | 9.4.1 | 项目构建与依赖管理 |
 | 工具库 | Lombok | - | 减少样板代码 |
 
 ## 系统架构

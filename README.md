@@ -351,7 +351,7 @@ src/main/resources/
 | Gradle | 8.x+（或使用项目内置 Gradle Wrapper） |
 | MySQL | 8.0+ |
 | Redis | 6.0+ |
-| Apache Kafka | 3.x（如需订单支付/取消功能） |
+| Apache Kafka | 4.x（如需订单支付/取消功能） |
 
 ### 1. 克隆项目
 

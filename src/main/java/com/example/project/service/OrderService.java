@@ -2,8 +2,10 @@ package com.example.project.service;
 
 
 import com.example.project.common.PageResult;
+import com.example.project.dto.request.CursorPageRequest;
 import com.example.project.dto.request.OrderCreateRequest;
 import com.example.project.dto.request.OrderQueryRequest;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.OrderResponse;
 
 /**
@@ -16,6 +18,8 @@ public interface OrderService {
     OrderResponse getOrderById(Long id);
 
     PageResult<OrderResponse> queryOrders(OrderQueryRequest request);
+
+    CursorPageResponse<OrderResponse> queryOrdersByCursor(CursorPageRequest request, Long userId);
 
     void payOrder(Long id);
 

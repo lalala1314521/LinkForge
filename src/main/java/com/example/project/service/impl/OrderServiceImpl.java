@@ -10,8 +10,10 @@ package com.example.project.service.impl;
 import com.example.project.common.BusinessException;
 import com.example.project.common.ErrorCode;
 import com.example.project.common.PageResult;
+import com.example.project.dto.request.CursorPageRequest;
 import com.example.project.dto.request.OrderCreateRequest;
 import com.example.project.dto.request.OrderQueryRequest;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.OrderResponse;
 import com.example.project.entity.Order;
 import com.example.project.enums.OrderStatus;
@@ -133,6 +135,26 @@ public class OrderServiceImpl implements OrderService {
                 .userId(order.getUserId())
                 .timestamp(System.currentTimeMillis())
                 .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CursorPageResponse<OrderResponse> queryOrdersByCursor(CursorPageRequest request, Long userId) {
+        int fetchSize = request.getSize() + 1;
+        List<Order> orders = orderMapper.selectByCursor(request.getLastId(), userId, fetchSize);
+
+        boolean hasMore = orders.size() > request.getSize();
+        if(hasMore) {
+            orders = orders.subList(0, request.getSize());
+        }
+
+        Long nextLastId = null;
+        if(!orders.isEmpty()) {
+            nextLastId = orders.get(orders.size() - 1).getId();
+        }
+
+        List<OrderResponse> responses = orders.stream().map(this::toResponse).toList();
+        return new CursorPageResponse<>(responses, nextLastId, hasMore);
     }
 
 

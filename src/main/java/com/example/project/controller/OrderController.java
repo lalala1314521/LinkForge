@@ -2,8 +2,10 @@ package com.example.project.controller;
 
 import com.example.project.common.PageResult;
 import com.example.project.common.Result;
+import com.example.project.dto.request.CursorPageRequest;
 import com.example.project.dto.request.OrderCreateRequest;
 import com.example.project.dto.request.OrderQueryRequest;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.OrderResponse;
 import com.example.project.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,6 +59,21 @@ public class OrderController {
     public Result<PageResult<OrderResponse>> queryOrders(@Valid OrderQueryRequest request) {
         return Result.success(orderService.queryOrders(request));
     }
+
+    /**
+     * 深分页优化
+     * @param request
+     * @param userId
+     * @return
+     */
+    @GetMapping("/api/users/cursor")
+    @Operation(summary = "游标分页查询订单列表", description = "深分页优化方案，适用于大数据量场景")
+    public Result<CursorPageResponse<OrderResponse>> queryOrdersByCursor(
+            @Valid CursorPageRequest request,
+            @RequestParam(required = false) Long userId) {
+        return Result.success(orderService.queryOrdersByCursor(request, userId));
+    }
+
 
     /**
      * POST /api/orders/{id}/pay

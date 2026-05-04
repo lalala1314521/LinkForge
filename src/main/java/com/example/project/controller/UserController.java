@@ -6,9 +6,11 @@ package com.example.project.controller;
 
 import com.example.project.common.PageResult;
 import com.example.project.common.Result;
+import com.example.project.dto.request.CursorPageRequest;
 import com.example.project.dto.request.UserCreateRequest;
 import com.example.project.dto.request.UserQueryRequest;
 import com.example.project.dto.request.UserUpdateRequest;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.UserResponse;
 import com.example.project.enums.UserStatus;
 import com.example.project.service.UserService;
@@ -59,6 +61,16 @@ public class UserController {
     public Result<PageResult<UserResponse>> queryUsers(@Valid UserQueryRequest request) {
         return Result.success(userService.queryUsers(request));
     }
+
+    /**
+     * 深度分页优化
+     */
+    @GetMapping("/api/users/cursor")
+    @Operation(summary = "游标分页查询用户列表", description = "深分页优化方案，适用于大数据量场景")
+    public Result<CursorPageResponse<UserResponse>> queryUsersByCursor(@Valid CursorPageRequest request) {
+        return Result.success(userService.queryUsersByCursor(request));
+    }
+
 
     /**
      * PUT /api/users/{id}

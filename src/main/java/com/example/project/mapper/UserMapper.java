@@ -14,7 +14,7 @@ import java.util.List;
 public interface UserMapper {
 
     @Insert("""
-            INSERT INTO user(username, password, nickname, phone, email, status, created_at, updated_at)
+            INSERT INTO users (username, password, nickname, phone, email, status, created_at, updated_at)
             VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{status}, NOW(), NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
@@ -53,6 +53,6 @@ public interface UserMapper {
     @Update("UPDATE users SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
     void updateStatus(@Param("id") Long id, @Param("status") UserStatus status);
 
-    @Update("UPDATE user SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
+    @Update("UPDATE users SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
     void logicalDelete(@Param("id") Long id, @Param("status") UserStatus status);
 }

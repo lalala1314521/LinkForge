@@ -1,13 +1,12 @@
 package com.example.project.service;
 
 import com.example.project.common.PageResult;
-import com.example.project.dto.request.LoginRequest;
-import com.example.project.dto.request.UserCreateRequest;
-import com.example.project.dto.request.UserQueryRequest;
-import com.example.project.dto.request.UserUpdateRequest;
+import com.example.project.dto.request.*;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.LoginResponse;
 import com.example.project.dto.response.UserResponse;
 import com.example.project.enums.UserStatus;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 
 /**
  * 用户服务接口
@@ -21,6 +20,8 @@ public interface UserService {
     UserResponse getUserById(Long id);
 
     PageResult<UserResponse> queryUsers(UserQueryRequest request);
+
+    CursorPageResponse<UserResponse> queryUsersByCursor(CursorPageRequest request);
 
     void updateUserInfo(Long id, UserUpdateRequest request);
 

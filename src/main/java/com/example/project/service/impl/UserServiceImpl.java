@@ -8,10 +8,8 @@ package com.example.project.service.impl;
 import com.example.project.common.BusinessException;
 import com.example.project.common.ErrorCode;
 import com.example.project.common.PageResult;
-import com.example.project.dto.request.LoginRequest;
-import com.example.project.dto.request.UserCreateRequest;
-import com.example.project.dto.request.UserQueryRequest;
-import com.example.project.dto.request.UserUpdateRequest;
+import com.example.project.dto.request.*;
+import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.LoginResponse;
 import com.example.project.dto.response.UserResponse;
 import com.example.project.entity.User;
@@ -144,6 +142,28 @@ public class UserServiceImpl implements UserService {
         }
         userMapper.logicalDelete(id, UserStatus.DELETED);
         log.info("用户逻辑删除：id={}", id);
+    }
+
+    //深分页优化
+    @Override
+    @Transactional(readOnly = true)
+    public CursorPageResponse<UserResponse> queryUsersByCursor(CursorPageRequest request) {
+
+        int fetchSize = request.getSize() + 1;
+        List<User> users = userMapper.selectByCursor(request.getLastId(), fetchSize);
+
+        boolean hasMore = users.size() > request.getSize();
+        if(hasMore) {
+            users = users.subList(0, request.getSize());
+        }
+
+        Long nextLastId = null;
+        if(!users.isEmpty()) {
+            nextLastId = users.get(users.size() - 1).getId();
+        }
+
+        List<UserResponse> responses = users.stream().map(this::toResponse).toList();
+        return new CursorPageResponse<>(responses, nextLastId, hasMore);
     }
 
 

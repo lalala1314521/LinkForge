@@ -17,7 +17,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 /**
- * DistributedLockUtil 单元测试（任务2）
+ * DistributedLockUtil 单元测试
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("分布式锁工具单元测试")

@@ -1,6 +1,11 @@
 package com.example.project.util;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
+
 
 /**
  * 雪花ID生成器（63位分布式唯一ID）
@@ -24,11 +29,15 @@ public class SnowflakeIdGenerator {
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_BITS;
 
     private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
+    private static final long MAX_BACKWARD_MS = 5L;
 
     private final long workerId;
     private final long datacenterId;
     private long sequence = 0L;
     private long lastStamp = -1L;
+
+    private static final Logger log = LoggerFactory.getLogger(SnowflakeIdGenerator.class);
+    private final AtomicLong backwardCount = new AtomicLong();
 
     public SnowflakeIdGenerator() {
         this(1L, 1L);
@@ -43,11 +52,28 @@ public class SnowflakeIdGenerator {
         this.workerId = workerId;
         this.datacenterId = datacenterId;
     }
+    /** @return 时钟回拨次数累计 */
+    public long getBackwardCount() {
+        return backwardCount.get();
+    }
 
     public synchronized long nextId() {
         long timestamp = System.currentTimeMillis();
         if(timestamp < lastStamp){
-            throw new RuntimeException("时钟回拨，ID生成暂停" + (lastStamp - timestamp) + "ms");
+            long backward = lastStamp - timestamp;
+            backwardCount.incrementAndGet();
+
+            if(backward <= MAX_BACKWARD_MS) {
+                log.info("[Snowflake]时钟回拨 {}ms(<={}ms), 自旋等待中...", backward, MAX_BACKWARD_MS);
+                while ((timestamp = System.currentTimeMillis()) < lastStamp) {
+                    //busy-wait
+                }
+            }else {
+                throw new ClockBackwardException(
+                        String.format("[Snowflake] 时钟回拨 %dms 超过阈值 %dms, ID生成中断！" +
+                                "请检查NTP同步。 workerId=%d, datacenterId=%d",
+                                backward, MAX_BACKWARD_MS, workerId, datacenterId));
+            }
         }
         if(timestamp == lastStamp){
             sequence = (sequence + 1) & SEQUENCE_MASK;
@@ -64,6 +90,12 @@ public class SnowflakeIdGenerator {
                 | (datacenterId << DATACENTER_ID_SHIFT)
                 | (workerId << WORKER_ID_SHIFT)
                 | sequence;
+    }
+
+    public static class ClockBackwardException extends RuntimeException {
+        public ClockBackwardException(String message) {
+            super(message);
+        }
     }
 
 }

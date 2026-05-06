@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 /**
- * 用户信息更新请求DTO（不含密码，避免updata接口强制要求传密码）
+ * 用户信息更新请求DTO（不含密码，避免update接口强制要求传密码）
  */
 @Data
 @Schema(description = "用户信息更细请求")

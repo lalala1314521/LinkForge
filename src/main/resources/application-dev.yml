@@ -18,5 +18,5 @@ logging:
   level:
     com.example.project: debug
     org.springframework.security: debug
-    # 任务5: 开启 MyBatis SQL 打印（参数绑定详情）
+    #  开启 MyBatis SQL 打印（参数绑定详情）
     org.mybatis: debug

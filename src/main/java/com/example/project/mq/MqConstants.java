@@ -9,7 +9,7 @@ public final class MqConstants {
 
     //订单领域
     public static final String TOPIC_ORDER_PAID = "order-paid";
-    public static final String TOPIC_ORDER_CANCELLED = "order_cancelled";
+    public static final String TOPIC_ORDER_CANCELLED = "order-cancelled";
 
     //消费组
     public static final String GROUP_ORDER_NOTIFICATION = "order-notification-group";

@@ -66,7 +66,7 @@ public class OrderController {
      * @param userId
      * @return
      */
-    @GetMapping("/api/users/cursor")
+    @GetMapping("/cursor")
     @Operation(summary = "游标分页查询订单列表", description = "深分页优化方案，适用于大数据量场景")
     public Result<CursorPageResponse<OrderResponse>> queryOrdersByCursor(
             @Valid CursorPageRequest request,

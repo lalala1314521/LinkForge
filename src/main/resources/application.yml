@@ -91,11 +91,11 @@ management:
       exposure:
         include: health,info
 
-# ---- 任务2: Redisson 分布式锁（单机模式，复用 Redis 配置）----
+# ---- Redisson 分布式锁（单机模式，复用 Redis 配置）----
 # redisson-spring-boot-starter 会自动读取 spring.data.redis 的连接信息
 # 如需覆盖，可在此追加 spring.data.redis.redisson.config 配置
 
-# ---- 任务1: Swagger/OpenAPI 配置 ----
+# ----  Swagger/OpenAPI 配置 ----
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

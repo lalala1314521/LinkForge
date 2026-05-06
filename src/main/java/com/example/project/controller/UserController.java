@@ -65,7 +65,7 @@ public class UserController {
     /**
      * 深度分页优化
      */
-    @GetMapping("/api/users/cursor")
+    @GetMapping("/cursor")
     @Operation(summary = "游标分页查询用户列表", description = "深分页优化方案，适用于大数据量场景")
     public Result<CursorPageResponse<UserResponse>> queryUsersByCursor(@Valid CursorPageRequest request) {
         return Result.success(userService.queryUsersByCursor(request));

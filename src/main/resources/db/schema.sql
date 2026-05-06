@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY (id),
     UNIQUE KEY idx_username (username),
     KEY idx_phone (phone),
-    KEY idx_created_at (created_at)   -- 任务5: created_at 排序常用，补充索引
+    KEY idx_created_at (created_at)   
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- ---- 订单表 ----
@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS orders (
     UNIQUE KEY idx_order_no (order_no),
     KEY idx_user_id (user_id),
     KEY idx_order_status (status),
-    KEY idx_user_status (user_id, status)  -- 任务5: 覆盖高频 user_id + status 组合查询的联合索引
+    KEY idx_user_status (user_id, status)  -- 覆盖高频 user_id + status 组合查询的联合索引
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单表';
 
--- ---- 测试数据（可选）----
+-- ---- 测试数据----
 -- 密码均为 Test@1234（BCrypt 加密）
 INSERT INTO users (username, password, nickname, phone, email) VALUES
 ('admin',   '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '管理员', '13800138000', 'admin@example.com'),

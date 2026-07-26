@@ -37,7 +37,28 @@ public enum ErrorCode {
     STOCK_INSUFFICIENT(1201, "库存不足"),
     ACTIVITY_NOT_STARTED(1202, "活动尚未开始"),
     ACTIVITY_ENDED(1203, "活动已结束"),
-    USER_ALREADY_PURCHASED(1204, "您已购买过该商品");
+    USER_ALREADY_PURCHASED(1204, "您已购买过该商品"),
+
+    // 优惠券模块
+    COUPON_NOT_FOUND(1301, "优惠券不存在"),
+    COUPON_ALREADY_USED(1302, "优惠券已使用"),
+    COUPON_EXPIRED(1303, "优惠券已过期"),
+    COUPON_NOT_APPLICABLE(1304, "优惠券不满足使用条件"),
+
+    // 积分模块
+    POINTS_NOT_ENOUGH(1311, "积分不足"),
+
+    // 秒杀模块
+    SECKILL_REPEAT(1321, "您已参与过该秒杀活动"),
+    SECKILL_STOCK_EMPTY(1322, "秒杀商品已抢光"),
+    SEC_ACTIVITY_NOT_STARTED(1323, "秒杀活动未开始"),
+    SEC_ACTIVITY_ENDED(1324, "秒杀活动已结束"),
+
+    // 通知模块
+    NOTIFICATION_SEND_FAILED(1331, "通知发送失败"),
+
+    // 消息表模块
+    MESSAGE_SEND_MAX_RETRY(1341, "消息发送超过最大重试次数");
 
     private final int code;
     private final String message;

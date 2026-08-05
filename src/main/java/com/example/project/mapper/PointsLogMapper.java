@@ -9,7 +9,7 @@ public interface PointsLogMapper {
 
     @Insert("""
             INSERT INTO points_log (user_id, type, amount, reason, order_no, created_at)
-            VALUES (#{userId}, #{type}, #{amount}, #{reason}, #{orderNo}, NOW()})
+            VALUES (#{userId}, #{type}, #{amount}, #{reason}, #{orderNo}, NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(PointsLog pointsLog);
@@ -21,7 +21,7 @@ public interface PointsLogMapper {
      * @return
      */
     @Select("""
-            SELECT * FROM points_log WHERE user_id = #{userId} AND order_no = #{orderNo} AND type = ‘EARN’
+            SELECT * FROM points_log WHERE user_id = #{userId} AND order_no = #{orderNo} AND type = 'EARN'
             ORDER BY created_at DESC LIMIT 1
             """)
     PointsLog findLastEarnByOrderNo(@Param("userId") Long userId,

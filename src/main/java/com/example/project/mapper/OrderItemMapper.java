@@ -19,6 +19,6 @@ public interface OrderItemMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(OrderItem orderItem);
 
-    @Select("SELECT * FORM order_item WHERE order_id = #{orderId}")
+    @Select("SELECT * FROM order_items WHERE order_id = #{orderId}")
     List<OrderItem> selectByOrderId(Long orderId);
 }

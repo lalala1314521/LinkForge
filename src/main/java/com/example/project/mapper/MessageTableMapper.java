@@ -10,8 +10,8 @@ import java.util.List;
 public interface MessageTableMapper {
 
     @Insert("""
-            INSERT INTO message_table (topic, message_key, payload, status, created_at)
-            VALUES (#{topic}, @{messagrKey}， #{payload}, 'PENDING', NOW())
+            INSERT INTO message_table (topic, message_key, payload, status, retry_count, max_retries, created_at)
+            VALUES (#{topic}, #{messageKey}, #{payload}, 'PENDING', #{retryCount}, #{maxRetries}, NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(MessageTable messageTable);
@@ -29,7 +29,7 @@ public interface MessageTableMapper {
      */
     @Update("""
             UPDATE message_table
-            SET retury_count = retry_count + 1,
+            SET retry_count = retry_count + 1,
                 next_retry_at = DATE_ADD(NOW(), INTERVAL #{delaySeconds} SECOND)
                 WHERE id = #{id}
             """)

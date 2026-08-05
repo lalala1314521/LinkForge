@@ -26,6 +26,15 @@ public class OrderResponse {
     @Schema(description = "订单金额", example = "99.99")
     private BigDecimal totalAmount;
 
+    @Schema(description = "使用的用户优惠券ID", example = "1")
+    private Long couponId;
+
+    @Schema(description = "优惠券抵扣金额", example = "0.00")
+    private BigDecimal couponDiscount;
+
+    @Schema(description = "实付金额", example = "99.99")
+    private BigDecimal finalAmount;
+
     @Schema(description = "订单状态： PENDING-待支付，SHIPPED-已发货，COMPLETED-已完成， CANCELLED-已取消", example = "PENDING")
     private OrderStatus status;
 

@@ -20,6 +20,9 @@ public class OrderCancelledMessage {
     private String orderNo;
     private Long userId;
 
+    /** 使用的用户优惠券实例ID（user_coupons.id），无券为 null */
+    private Long couponId;
+
     /*消息创建时间*/
     private long timestamp;
 }

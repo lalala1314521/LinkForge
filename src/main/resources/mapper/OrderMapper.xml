@@ -8,6 +8,9 @@
         <result column="order_no"     property="orderNo"/>
         <result column="user_id"      property="userId"/>
         <result column="total_amount" property="totalAmount"/>
+        <result column="coupon_id"        property="couponId"/>
+        <result column="coupon_discount"  property="couponDiscount"/>
+        <result column="final_amount"     property="finalAmount"/>
         <result column="status"       property="status"/>
         <result column="remark"       property="remark"/>
         <result column="created_at"   property="createdAt"/>

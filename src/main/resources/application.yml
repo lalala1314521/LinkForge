@@ -33,7 +33,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: 123456
+      #password: 123456
       database: 0
       timeout: 3000ms
       lettuce:
@@ -51,7 +51,7 @@ spring:
       acks: all
       #批量发送优化
       batch-size: 16384 #16kb
-      buffer-memory: 33554432 #32kb
+      buffer-memory: 33554432 #32MB
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
@@ -84,12 +84,54 @@ jwt:
   secret: "SpringBootTutorialSecretKey_MinLength_32chars_OK"
   expiration-ms: 86400000   # 24 小时
 
+# ---- 接口限流阈值 ----
+rate-limit:
+  login:
+    max: 5              # 登录接口：每个IP 5次
+    window: 60          # 窗口 60 秒
+  register:
+    max: 10             # 注册接口：每个IP 10次
+    window: 3600        # 窗口 3600 秒
+  global:
+    qps: 100            # 全局接口单机 QPS 兜底（Guava）
+
+# ---- 积分与可靠消息参数 ----
+points:
+  earn-ratio: 1            # 积分比例：1元 = 1积分（amount 由消费端按 finalAmount 换算后传入）
+
+reliable-message:
+  compensate:
+    fixed-delay-ms: 30000   # 补偿任务扫描间隔（毫秒）
+    lock-lease-seconds: 30   # 补偿任务分布式锁持有时间（秒），需 ≥ 扫描间隔/1000
+    max-retries: 3           # 消息最大重试次数（写入 message_table.max_retries）
+    backoff-base-seconds: 30 # 指数退避基数：30s × 2^n（上限 1h）
+
+# ---- 秒杀参数 ----
+seckill:
+  topic:
+    order: seckill-order    # 秒杀订单 topic（消费者监听）
+  bloom:
+    expected-insertions: 100000   # 布隆预期插入量（每活动，tryInit 一次性，容量变更需新活动）
+    false-probability: 0.001      # 布隆误判率
+  reconcile:
+    fixed-delay-ms: 60000   # 秒杀库存对账任务扫描间隔（毫秒）
+
+# ---- 订单超时关单（批次4）----
+order:
+  timeout-cancel:
+    fixed-delay-ms: 60000   # 超时关单任务扫描间隔（毫秒）
+    timeout-minutes: 15     # PENDING 订单超时分钟数
+
+# ---- 接口幂等（批次4）----
+idempotency:
+  ttl-seconds: 300          # Idempotency-Key 键 TTL（秒），防 Redis 泄漏
+
 # ---- Actuator ----
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics   # 批次4：开放 metrics（Prometheus 可抓 /actuator/metrics；如需 /actuator/prometheus 需加 micrometer-registry-prometheus 依赖）
 
 # ---- Redisson 分布式锁（单机模式，复用 Redis 配置）----
 # redisson-spring-boot-starter 会自动读取 spring.data.redis 的连接信息

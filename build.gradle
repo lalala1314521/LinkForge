@@ -70,6 +70,9 @@ dependencies {
     //kafka消息队列（替代原有Spring Event)
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
 
+    //AOP（批次4：操作审计日志 @AuditLog 切面必需；Spring Boot 4 中 spring-boot-starter-aop 已改名为 spring-boot-starter-aspectj）
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+
 
 
 	//implementation 'org.springframework.boot:spring-boot-starter-webmvc'
@@ -82,4 +85,10 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// 限制并行测试 JVM（默认=CPU核数，用户机器 fork 17 个导致内存不足崩溃）
+	maxParallelForks = 2
+	// 每 100 个用例复用同一测试 JVM，减少进程创建开销
+	forkEvery = 100
+	// 限制测试 JVM 堆内存，防止多进程叠加 OOM
+	jvmArgs '-Xmx512m'
 }

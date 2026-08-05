@@ -14,8 +14,8 @@ import java.util.List;
 public interface UserMapper {
 
     @Insert("""
-            INSERT INTO users (username, password, nickname, phone, email, status, created_at, updated_at)
-            VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{status}, NOW(), NOW())
+            INSERT INTO users (username, password, nickname, phone, email, role, status, created_at, updated_at)
+            VALUES (#{username}, #{password}, #{nickname}, #{phone}, #{email}, #{role}, #{status}, NOW(), NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(User user);

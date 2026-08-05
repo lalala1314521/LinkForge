@@ -1,5 +1,7 @@
 package com.example.project.controller;
 
+import com.example.project.common.BusinessException;
+import com.example.project.common.ErrorCode;
 import com.example.project.common.PageResult;
 import com.example.project.common.Result;
 import com.example.project.dto.request.CursorPageRequest;
@@ -7,7 +9,9 @@ import com.example.project.dto.request.OrderCreateRequest;
 import com.example.project.dto.request.OrderQueryRequest;
 import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.OrderResponse;
+import com.example.project.security.SecurityUtil;
 import com.example.project.service.OrderService;
+import com.example.project.util.IdempotencyUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,16 +30,24 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+    private final IdempotencyUtil idempotencyUtil;
 
     /**
      * POST /api/orders
-     * 创建订单（已集成分布式锁，同一用户5s内不可重复提交）
+     * 创建订单（已集成分布式锁，同一用户5s内不可重复提交 + Idempotency-Key 请求级幂等）
+     * 金额由服务端根据商品单价×数量计算，下单用户取自当前登录用户
      */
     @PostMapping
     @Operation(summary = "创建订单",
-            description = "创建新订单，初始状态为 PENDING。已集成 Redisson 分布式锁，同一用户5秒内禁止重复提交",
+            description = "创建新订单，初始状态为 PENDING。金额由服务端按商品单价×数量计算，不信任前端金额；下单用户取自登录态。已集成 Redisson 分布式锁（同一用户5秒防重复提交）+ Idempotency-Key 请求头幂等（同 key 重复请求返回 1103）",
             security = @SecurityRequirement(name = "Bearer"))
-    public Result<Long> createOrder(@Valid @RequestBody OrderCreateRequest request) {
+    public Result<Long> createOrder(@Valid @RequestBody OrderCreateRequest request,
+                                    @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        // 请求级幂等：同 userId+Idempotency-Key 重复请求被拒绝（Redis SETNX + TTL）
+        if (!idempotencyUtil.tryAcquire(userId, idempotencyKey)) {
+            throw new BusinessException(ErrorCode.ORDER_CREATE_BUSY);
+        }
         return Result.success(orderService.createOrder(request));
     }
 
@@ -63,15 +75,13 @@ public class OrderController {
     /**
      * 深分页优化
      * @param request
-     * @param userId
      * @return
      */
     @GetMapping("/cursor")
-    @Operation(summary = "游标分页查询订单列表", description = "深分页优化方案，适用于大数据量场景")
+    @Operation(summary = "游标分页查询订单列表", description = "深分页优化方案，适用于大数据量场景。非管理员只能查本人订单，管理员可查全部")
     public Result<CursorPageResponse<OrderResponse>> queryOrdersByCursor(
-            @Valid CursorPageRequest request,
-            @RequestParam(required = false) Long userId) {
-        return Result.success(orderService.queryOrdersByCursor(request, userId));
+            @Valid CursorPageRequest request) {
+        return Result.success(orderService.queryOrdersByCursor(request));
     }
 
 

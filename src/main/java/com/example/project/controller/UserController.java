@@ -6,6 +6,7 @@ package com.example.project.controller;
 
 import com.example.project.common.PageResult;
 import com.example.project.common.Result;
+import com.example.project.annotation.AuditLog;
 import com.example.project.dto.request.CursorPageRequest;
 import com.example.project.dto.request.UserCreateRequest;
 import com.example.project.dto.request.UserQueryRequest;
@@ -79,6 +80,7 @@ public class UserController {
      * 更新用户基本信息
      */
     @PutMapping("/{id}")
+    @AuditLog(action = "UPDATE_USER", targetType = "USER")
     @Operation(summary = "更新用户信息", description = "更新昵称、手机号、邮箱，同时清除缓存", security = @SecurityRequirement(name = "Bearer"))
     @Parameter(name = "id", description = "用户ID", example = "1", required = true)
     public Result<Void> updateUserInfo(@PathVariable Long id,
@@ -92,6 +94,7 @@ public class UserController {
      * 更新用户状态
      */
     @PatchMapping("/{id}/status")
+    @AuditLog(action = "UPDATE_USER_STATUS", targetType = "USER")
     @Operation(summary = "更新用户状态", description = "修改用户状态（ACTIVE/DISABLED），同时清除缓存", security = @SecurityRequirement(name = "Bearer"))
     @Parameter(name = "id", description = "用户ID", example = "1", required = true)
     @Parameter(name = "status", description = "目标状态", example = "DISABLED", required = true)
@@ -106,6 +109,7 @@ public class UserController {
      * 逻辑删除用户
      */
     @DeleteMapping("/{id}")
+    @AuditLog(action = "DELETE_USER", targetType = "USER")
     @Operation(summary = "删除用户", description = "逻辑删除（status='DELETED'），不物理移除数据", security = @SecurityRequirement(name = "Bearer"))
     @Parameter(name = "id", description = "用户ID", example = "1", required = true)
     public Result<Void> deleteUser(@PathVariable Long id) {

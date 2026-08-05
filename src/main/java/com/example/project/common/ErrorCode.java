@@ -35,6 +35,7 @@ public enum ErrorCode {
 
     //预留业务错误码
     STOCK_INSUFFICIENT(1201, "库存不足"),
+    PRODUCT_NOT_FOUND(1205, "商品不存在或已下架"),
     ACTIVITY_NOT_STARTED(1202, "活动尚未开始"),
     ACTIVITY_ENDED(1203, "活动已结束"),
     USER_ALREADY_PURCHASED(1204, "您已购买过该商品"),
@@ -44,15 +45,20 @@ public enum ErrorCode {
     COUPON_ALREADY_USED(1302, "优惠券已使用"),
     COUPON_EXPIRED(1303, "优惠券已过期"),
     COUPON_NOT_APPLICABLE(1304, "优惠券不满足使用条件"),
+    COUPON_ALREADY_CLAIMED(1305, "优惠券已领取，每人限领一张"),
+    COUPON_STOCK_RUN_OUT(1306, "优惠券已被领完"),
 
     // 积分模块
     POINTS_NOT_ENOUGH(1311, "积分不足"),
+    POINTS_EARN_FAILED(1312, "积分发放失败，请稍后重试"),
 
     // 秒杀模块
     SECKILL_REPEAT(1321, "您已参与过该秒杀活动"),
     SECKILL_STOCK_EMPTY(1322, "秒杀商品已抢光"),
     SEC_ACTIVITY_NOT_STARTED(1323, "秒杀活动未开始"),
     SEC_ACTIVITY_ENDED(1324, "秒杀活动已结束"),
+    SECKILL_ACTIVITY_NOT_FOUND(1325, "秒杀活动不存在"),
+    SECKILL_STATUS_INVALID(1326, "秒杀活动状态不合法"),
 
     // 通知模块
     NOTIFICATION_SEND_FAILED(1331, "通知发送失败"),

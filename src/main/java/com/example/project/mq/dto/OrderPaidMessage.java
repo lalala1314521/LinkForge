@@ -23,6 +23,9 @@ public class OrderPaidMessage {
     private Long userId;
     private BigDecimal totalAmount;
 
+    /** 使用的用户优惠券实例ID（user_coupons.id），无券为 null */
+    private Long couponId;
+
     /*消息创建时间， 用于排查链路延迟*/
     private long timestamp;
 }

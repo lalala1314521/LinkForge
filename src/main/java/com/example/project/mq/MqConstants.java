@@ -11,6 +11,10 @@ public final class MqConstants {
     public static final String TOPIC_ORDER_PAID = "order-paid";
     public static final String TOPIC_ORDER_CANCELLED = "order-cancelled";
 
+    //秒杀领域
+    public static final String TOPIC_SECKILL_ORDER = "seckill-order";
+
     //消费组
     public static final String GROUP_ORDER_NOTIFICATION = "order-notification-group";
+    public static final String GROUP_SECKILL = "seckill-group";
 }

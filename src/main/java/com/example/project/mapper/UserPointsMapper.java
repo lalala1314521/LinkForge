@@ -3,8 +3,6 @@ package com.example.project.mapper;
 
 import com.example.project.entity.UserPoints;
 import org.apache.ibatis.annotations.*;
-import org.checkerframework.checker.guieffect.qual.UIPackage;
-import org.springframework.security.core.parameters.P;
 
 @Mapper
 public interface UserPointsMapper {
@@ -23,7 +21,7 @@ public interface UserPointsMapper {
      * 增加积分
      */
     @Update("""
-            UPDATE user_points SET balance + #{amount}, version = version + 1, uddated_at = NOW()
+            UPDATE user_points SET balance = balance + #{amount}, version = version + 1, updated_at = NOW()
             WHERE user_id = #{userId} AND version = #{version}
             """)
     int increaseBalance(@Param("userId") Long userId,

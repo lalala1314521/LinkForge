@@ -10,6 +10,7 @@
         <result column="nickname"   property="nickname"/>
         <result column="phone"      property="phone"/>
         <result column="email"      property="email"/>
+        <result column="role"       property="role"/>
         <result column="status"     property="status"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>

@@ -18,6 +18,7 @@ import com.example.project.mapper.SeckillOrderMapper;
 import com.example.project.mq.dto.SeckillOrderMessage;
 import com.example.project.mq.producer.SeckillKafkaProducer;
 import com.example.project.security.SecurityUtil;
+import com.example.project.service.PointsService;
 import com.example.project.service.SeckillService;
 import com.example.project.util.LuaScriptExecutor;
 import com.example.project.util.SnowflakeIdGenerator;
@@ -59,6 +60,7 @@ public class SeckillServiceImpl implements SeckillService {
     private final SeckillKafkaProducer seckillKafkaProducer;
     private final SnowflakeIdGenerator idGenerator;
     private final StringRedisTemplate stringRedisTemplate;
+    private final PointsService pointsService;
 
     @Override
     public SeckillResult doSeckill(Long activityId) {
@@ -114,12 +116,82 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public SeckillResult getSeckillOrderStatus(String orderNo) {
-        SeckillOrder order = seckillOrderMapper.selectByOrderNo(orderNo);
-        if (order == null) {
-            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
-        }
+        Long userId = SecurityUtil.getCurrentUserId();
+        SeckillOrder order = requireOwnedOrder(orderNo, userId);
         return new SeckillResult(order.getOrderNo(), order.getActivityId(),
                 order.getProductId(), order.getPrice(), order.getStatus());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void paySeckillOrder(String orderNo) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        SeckillOrder order = requireOwnedOrder(orderNo, userId);
+        int rows = seckillOrderMapper.updateStatusByOrderNo(orderNo, userId, "PAID");
+        if (rows == 0) {
+            // 非 PENDING：已支付视为幂等成功，已取消则报状态不允许
+            if ("PAID".equals(order.getStatus())) {
+                return;
+            }
+            throw new BusinessException(ErrorCode.SECKILL_ORDER_STATUS_INVALID);
+        }
+        // 发积分（与普通订单一致：金额按 earn-ratio 换算），同事务保证支付与积分一致
+        pointsService.earn(userId, order.getPrice().intValue(), orderNo, "秒杀订单支付奖励");
+        log.info("[秒杀支付] 用户{} 秒杀单{} 支付成功", userId, orderNo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelSeckillOrder(String orderNo) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        SeckillOrder order = requireOwnedOrder(orderNo, userId);
+        int rows = seckillOrderMapper.updateStatusByOrderNo(orderNo, userId, "CANCELLED");
+        if (rows == 0) {
+            if ("CANCELLED".equals(order.getStatus())) {
+                return; // 幂等
+            }
+            throw new BusinessException(ErrorCode.SECKILL_ORDER_STATUS_INVALID);
+        }
+        releaseStock(order);
+        log.info("[秒杀取消] 用户{} 秒杀单{} 已取消，库存回补", userId, orderNo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelSeckillOrderByTimeout(String orderNo) {
+        int rows = seckillOrderMapper.updateStatusByOrderNoTimeout(orderNo, "CANCELLED");
+        if (rows == 0) {
+            return; // 已处理或不存在，跳过
+        }
+        SeckillOrder order = seckillOrderMapper.selectByOrderNo(orderNo);
+        if (order != null) {
+            releaseStock(order);
+        }
+        log.info("[秒杀超时关单] 秒杀单{} 已取消，库存回补", orderNo);
+    }
+
+    /** 归属校验：订单存在且属于当前用户（防越权） */
+    private SeckillOrder requireOwnedOrder(String orderNo, Long userId) {
+        SeckillOrder order = seckillOrderMapper.selectByOrderNo(orderNo);
+        if (order == null || !order.getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.SECKILL_ORDER_NOT_FOUND);
+        }
+        return order;
+    }
+
+    /**
+     * 释放库存：Redis INCR 回加 + 限购集合移除（尽力而为，失败仅告警）；
+     * DB 条件回加参与事务（失败则回滚取消，保证一致）。
+     */
+    private void releaseStock(SeckillOrder order) {
+        try {
+            stringRedisTemplate.opsForValue().increment(stockKey(order.getActivityId()));
+            stringRedisTemplate.opsForSet().remove(usersKey(order.getActivityId()),
+                    String.valueOf(order.getUserId()));
+        } catch (Exception e) {
+            log.warn("[秒杀取消] Redis 库存回补失败：orderNo={}, error={}", order.getOrderNo(), e.getMessage());
+        }
+        seckillActivityMapper.incrementAvailableStock(order.getActivityId());
     }
 
     @Override

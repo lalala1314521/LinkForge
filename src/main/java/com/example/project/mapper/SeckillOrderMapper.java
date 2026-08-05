@@ -37,4 +37,27 @@ public interface SeckillOrderMapper {
     /** 预留：PENDING→PAID 支付流转（批次 4） */
     @Update("UPDATE seckill_orders SET status = #{status}, updated_at = NOW() WHERE id = #{id}")
     void updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    /**
+     * 用户侧支付/取消：条件更新（归属 + PENDING 前置），影响行数 0 表示非 PENDING 或非本人
+     */
+    @Update("""
+            UPDATE seckill_orders SET status = #{targetStatus}, updated_at = NOW()
+            WHERE order_no = #{orderNo} AND user_id = #{userId} AND status = 'PENDING'
+            """)
+    int updateStatusByOrderNo(@Param("orderNo") String orderNo,
+                              @Param("userId") Long userId,
+                              @Param("targetStatus") String targetStatus);
+
+    /** 超时关单任务用：无归属校验，条件 PENDING→目标状态 */
+    @Update("""
+            UPDATE seckill_orders SET status = #{targetStatus}, updated_at = NOW()
+            WHERE order_no = #{orderNo} AND status = 'PENDING'
+            """)
+    int updateStatusByOrderNoTimeout(@Param("orderNo") String orderNo,
+                                     @Param("targetStatus") String targetStatus);
+
+    /** 超时关单扫描：PENDING 且创建时间早于阈值 */
+    @Select("SELECT * FROM seckill_orders WHERE status = 'PENDING' AND created_at < #{before} ORDER BY created_at ASC LIMIT 100")
+    List<SeckillOrder> selectTimeoutPending(java.time.LocalDateTime before);
 }

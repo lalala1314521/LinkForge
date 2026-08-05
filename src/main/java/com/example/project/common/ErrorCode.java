@@ -59,6 +59,8 @@ public enum ErrorCode {
     SEC_ACTIVITY_ENDED(1324, "秒杀活动已结束"),
     SECKILL_ACTIVITY_NOT_FOUND(1325, "秒杀活动不存在"),
     SECKILL_STATUS_INVALID(1326, "秒杀活动状态不合法"),
+    SECKILL_ORDER_NOT_FOUND(1327, "秒杀订单不存在"),
+    SECKILL_ORDER_STATUS_INVALID(1328, "秒杀订单状态不允许该操作"),
 
     // 通知模块
     NOTIFICATION_SEND_FAILED(1331, "通知发送失败"),

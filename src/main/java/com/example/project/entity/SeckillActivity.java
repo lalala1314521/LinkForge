@@ -3,6 +3,7 @@ package com.example.project.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -27,6 +28,10 @@ public class SeckillActivity {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+
+    /** 真实秒杀价格（D2）：Consumer 落库 price 取此值，杜绝 0 元单 */
+    @Column(name = "seckill_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal seckillPrice;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;

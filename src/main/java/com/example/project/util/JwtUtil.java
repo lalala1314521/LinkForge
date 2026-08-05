@@ -25,12 +25,13 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    /* 生成Token (subject = userId, claim username) */
-    public String generateToken(Long userId, String username) {
+    /* 生成Token (subject = userId, claim username + role) */
+    public String generateToken(Long userId, String username, String role) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("username", username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMs))
                 .signWith(secretKey)
@@ -49,6 +50,12 @@ public class JwtUtil {
     public String getUsername(String token) {
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload().get("username", String.class);
+    }
+
+    /* 解析role（旧 token 可能无该 claim，返回 null，由调用方兜底） */
+    public String getRole(String token) {
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
     /* 校验Token 是否合法 */

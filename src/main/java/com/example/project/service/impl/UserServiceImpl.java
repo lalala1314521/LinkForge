@@ -13,10 +13,12 @@ import com.example.project.dto.response.CursorPageResponse;
 import com.example.project.dto.response.LoginResponse;
 import com.example.project.dto.response.UserResponse;
 import com.example.project.entity.User;
+import com.example.project.enums.UserRole;
 import com.example.project.enums.UserStatus;
 import com.example.project.event.UserCreatedEvent;
 import com.example.project.mapper.UserMapper;
 import com.example.project.service.UserService;
+import com.example.project.util.DesensitizeUtil;
 import com.example.project.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import java.time.LocalDateTime;//test
-import java.time.LocalDateTime;//test
 
 @Slf4j
 @Service
@@ -54,7 +53,7 @@ public class UserServiceImpl implements UserService {
         if(user.getStatus() == UserStatus.DISABLED) {
             throw new BusinessException(ErrorCode.ACCOUNT_DISABLED);
         }
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole().name());
 
         LoginResponse response = new LoginResponse();
         response.setUserId(user.getId());
@@ -79,6 +78,7 @@ public class UserServiceImpl implements UserService {
         user.setNickname(request.getNickname());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
+        user.setRole(UserRole.USER);    // 注册用户一律为普通用户，不允许自提权
 
         userMapper.insert(user);
         log.info("用户创建成功：username={}", request.getUsername());
@@ -177,8 +177,9 @@ public class UserServiceImpl implements UserService {
         response.setId(user.getId());
         response.setUsername(user.getUsername());
         response.setNickname(user.getNickname());
-        response.setPhone(user.getPhone());
-        response.setEmail(user.getEmail());
+        response.setPhone(DesensitizeUtil.maskPhone(user.getPhone()));
+        response.setEmail(DesensitizeUtil.maskEmail(user.getEmail()));
+        response.setRole(user.getRole());
         response.setStatus(user.getStatus());
         response.setCreatedAt(user.getCreatedAt());
         response.setUpdatedAt(user.getUpdatedAt());

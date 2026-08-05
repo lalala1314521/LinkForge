@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "orders", indexes ={
         @Index(name = "idx_user_id",       columnList = "user_id"),
         @Index(name = "idx_order_no",      columnList = "order_no", unique = true),
-        @Index(name = "idx_order_status",  columnList = "order_status"),
+        @Index(name = "idx_order_status",  columnList = "status"),
         @Index(name = "idx_user_status",   columnList = "user_id, status") //覆盖高频组合查询的联合索引
 })
 public class Order {
@@ -31,6 +31,15 @@ public class Order {
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(name = "coupon_id")
+    private Long couponId;
+
+    @Column(name = "coupon_discount", precision = 10, scale = 2)
+    private BigDecimal couponDiscount = BigDecimal.ZERO;
+
+    @Column(name = "final_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal finalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)

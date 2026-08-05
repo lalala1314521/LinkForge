@@ -8,6 +8,18 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
+  # 批次4：prod 环境 Kafka 配置环境变量化（修复"未配置 Kafka 落回 localhost 写死值"问题）
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      retries: ${KAFKA_PRODUCER_RETRIES:3}
+      acks: all
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:order-notification-group}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        spring.json.trusted.packages: com.example.project.mq.dto
 
 jwt:
   secret: ${JWT_SECRET}

@@ -14,8 +14,8 @@ import java.util.List;
 public interface OrderMapper {
 
     @Insert("""
-            INSERT INTO orders (order_no, user_id, total_amount, status, remark, created_at, updated_at)
-            VALUES (#{orderNo}, #{userId}, #{totalAmount}, #{status}, #{remark}, NOW(), NOW())
+            INSERT INTO orders (order_no, user_id, total_amount, coupon_id, coupon_discount, final_amount, status, remark, created_at, updated_at)
+            VALUES (#{orderNo}, #{userId}, #{totalAmount}, #{couponId}, #{couponDiscount}, #{finalAmount}, #{status}, #{remark}, NOW(), NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Order order);
@@ -42,4 +42,16 @@ public interface OrderMapper {
                                @Param("size") int size);
     @Update("UPDATE orders SET status=#{status}, updated_at=NOW() WHERE id=#{id}")
     void updateStatus(@Param("id") Long id, @Param("status") OrderStatus status);
+
+    /**
+     * 条件更新：仅当 status='PENDING' 时更新为目标状态（超时关单/并发防重复处理用，影响行数 0 = 已被处理）
+     */
+    @Update("UPDATE orders SET status=#{status}, updated_at=NOW() WHERE id=#{id} AND status='PENDING'")
+    int updateStatusIfPending(@Param("id") Long id, @Param("status") OrderStatus status);
+
+    /**
+     * 扫描超时未支付订单（status=PENDING 且创建时间早于阈值），供超时关单任务使用
+     */
+    @Select("SELECT * FROM orders WHERE status='PENDING' AND created_at < #{timeoutBefore} ORDER BY created_at ASC")
+    List<Order> selectTimeoutPending(@Param("timeoutBefore") java.time.LocalDateTime timeoutBefore);
 }

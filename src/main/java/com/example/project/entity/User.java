@@ -1,5 +1,6 @@
 package com.example.project.entity;
 
+import com.example.project.enums.UserRole;
 import com.example.project.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,6 +36,10 @@ public class User {
 
     @Column(length = 100)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20, nullable = false)
+    private UserRole role = UserRole.USER;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)

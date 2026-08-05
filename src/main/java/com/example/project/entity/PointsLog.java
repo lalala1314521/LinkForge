@@ -14,10 +14,12 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "points_log", indexes = {
-        @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_order_no", columnList = "order_no")
-})
+@Table(name = "points_log",
+        uniqueConstraints = @UniqueConstraint(name = "uk_order_type", columnNames = {"order_no", "type"}),
+        indexes = {
+                @Index(name = "idx_user_id", columnList = "user_id"),
+                @Index(name = "idx_order_no", columnList = "order_no")
+        })
 public class PointsLog {
 
     @Id

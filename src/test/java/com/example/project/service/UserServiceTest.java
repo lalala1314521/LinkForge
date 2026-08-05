@@ -3,10 +3,13 @@ package com.example.project.service;
 import com.example.project.common.BusinessException;
 import com.example.project.common.ErrorCode;
 import com.example.project.common.PageResult;
+import com.example.project.dto.request.LoginRequest;
 import com.example.project.dto.request.UserCreateRequest;
 import com.example.project.dto.request.UserQueryRequest;
+import com.example.project.dto.response.LoginResponse;
 import com.example.project.dto.response.UserResponse;
 import com.example.project.entity.User;
+import com.example.project.enums.UserRole;
 import com.example.project.enums.UserStatus;
 import com.example.project.mapper.UserMapper;
 import com.example.project.service.impl.UserServiceImpl;
@@ -15,6 +18,7 @@ import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -51,6 +55,9 @@ class UserServiceTest {
         u.setUsername(username);
         u.setPassword("encoded_password");
         u.setNickname("昵称_" + username);
+        u.setPhone("13812348000");
+        u.setEmail("admin@example.com");
+        u.setRole(UserRole.USER);
         u.setStatus(UserStatus.ACTIVE);
         u.setCreatedAt(LocalDateTime.now());
         u.setUpdatedAt(LocalDateTime.now());
@@ -60,7 +67,7 @@ class UserServiceTest {
     // ---- createUser ----
 
     @Test
-    @DisplayName("创建用户成功 - 返回用户ID并发布事件")
+    @DisplayName("创建用户成功 - 返回用户ID、角色默认USER并发布事件")
     void createUser_success() {
         UserCreateRequest req = new UserCreateRequest();
         req.setUsername("newuser");
@@ -79,6 +86,10 @@ class UserServiceTest {
         Long id = userService.createUser(req);
 
         BDDAssertions.then(id).isEqualTo(100L);
+        // 注册用户角色强制为 USER，不允许自提权
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        then(userMapper).should().insert(userCaptor.capture());
+        BDDAssertions.then(userCaptor.getValue().getRole()).isEqualTo(UserRole.USER);
         // 任务4: 验证事件被发布
         then(eventPublisher).should().publishEvent(any());
     }
@@ -97,17 +108,48 @@ class UserServiceTest {
                 .isEqualTo(ErrorCode.USER_ALREADY_EXISTS);
     }
 
+    // ---- login ----
+
+    @Test
+    @DisplayName("登录成功 - 生成带角色 claim 的 Token")
+    void login_success_generatesTokenWithRole() {
+        LoginRequest req = new LoginRequest();
+        req.setUsername("admin");
+        req.setPassword("Test@1234");
+
+        User admin = buildUser(1L, "admin");
+        admin.setRole(UserRole.ADMIN);
+
+        given(userMapper.findByUsername("admin")).willReturn(admin);
+        given(passwordEncoder.matches("Test@1234", "encoded_password")).willReturn(true);
+        given(jwtUtil.generateToken(1L, "admin", "ADMIN")).willReturn("jwt-token");
+        given(jwtUtil.getExpirationMs()).willReturn(86400000L);
+
+        LoginResponse resp = userService.login(req);
+
+        BDDAssertions.then(resp.getToken()).isEqualTo("jwt-token");
+        BDDAssertions.then(resp.getUserId()).isEqualTo(1L);
+        // Token 生成必须携带角色
+        then(jwtUtil).should().generateToken(1L, "admin", "ADMIN");
+    }
+
     // ---- getUserById ----
 
     @Test
-    @DisplayName("根据ID查询用户 - 命中数据库返回 UserResponse")
+    @DisplayName("根据ID查询用户 - 命中数据库返回脱敏后的 UserResponse")
     void getUserById_found() {
-        given(userMapper.selectById(1L)).willReturn(buildUser(1L, "admin"));
+        User user = buildUser(1L, "admin");
+        given(userMapper.selectById(1L)).willReturn(user);
 
         UserResponse resp = userService.getUserById(1L);
 
         BDDAssertions.then(resp.getId()).isEqualTo(1L);
         BDDAssertions.then(resp.getUsername()).isEqualTo("admin");
+        // 手机号/邮箱脱敏后返回
+        BDDAssertions.then(resp.getPhone()).isEqualTo("138****8000");
+        BDDAssertions.then(resp.getEmail()).isEqualTo("a***n@example.com");
+        // 角色透出
+        BDDAssertions.then(resp.getRole()).isEqualTo(UserRole.USER);
     }
 
     @Test

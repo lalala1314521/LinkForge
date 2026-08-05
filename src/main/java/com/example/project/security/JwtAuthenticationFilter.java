@@ -37,6 +37,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
             Long userId = jwtUtil.getUserId(token);
             String username = jwtUtil.getUsername(token);
+            String role = jwtUtil.getRole(token);
+            //旧 token 可能无 role claim，兜底为普通用户
+            if(!StringUtils.hasText(role)) {
+                role = "USER";
+            }
             //将userId 写入 MDC ，使日志自动携带用户信息
             MDC.put("userId", String.valueOf(userId));
 
@@ -45,9 +50,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
                         );
-                auth.setDetails(userId); //details 存储 userId, 供Controller层取用
+                auth.setDetails(userId); //details 存储 userId, 供 SecurityUtil 取用
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 filterChain.doFilter(request, response);
             } finally {

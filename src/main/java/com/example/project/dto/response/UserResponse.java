@@ -1,8 +1,8 @@
 package com.example.project.dto.response;
 
+import com.example.project.enums.UserRole;
 import com.example.project.enums.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -23,11 +23,14 @@ public class UserResponse {
     @Schema(description = "昵称", example = "管理员")
     private String nickname;
 
-    @Schema(description = "手机号", example = "13812345678")
+    @Schema(description = "手机号（已脱敏）", example = "138****8000")
     private String phone;
 
-    @Schema(description = "邮箱", example = "admin@example.com")
+    @Schema(description = "邮箱（已脱敏）", example = "a***e@example.com")
     private String email;
+
+    @Schema(description = "角色，USER-普通用户，ADMIN-管理员", example = "USER")
+    private UserRole role;
 
     @Schema(description = "用户状态，ACTIVE-正常， DISABLED-禁用, DELETED-已删除", example = "ACTIVE")
     private UserStatus status;

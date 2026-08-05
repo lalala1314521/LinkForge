@@ -12,25 +12,36 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 智能客服接口（需登录）
  * <p>
- * ChatProvider 当前为 Mock（规则+实时订单数据=轻量 RAG），
- * 接入真实大模型后替换 Provider 实现即可。
+ * 多 Provider 路由：support.ai.enabled=true 时注入 OpenAiChatProvider（真实模型，含 RAG 订单上下文），
+ * 否则回退 MockChatProvider（规则演示）。填 key 前系统可正常运行（OpenAI 返回"未配置"提示）。
  */
 @RestController
 @RequestMapping("/api/support")
 @RequiredArgsConstructor
-@Tag(name = "智能客服", description = "AI 客服对话（需登录，演示模式）")
+@Tag(name = "智能客服", description = "AI 客服对话（需登录，DeepSeek/OpenAI 兼容 + 规则回退）")
 public class SupportController {
 
-    private final ChatProvider chatProvider;
+    private final List<ChatProvider> chatProviders;
 
     @PostMapping("/chat")
-    @Operation(summary = "客服对话", description = "用户输入问题，返回客服回复（规则演示，支持订单/支付/发货/退款/积分/券查询）", security = @SecurityRequirement(name = "Bearer"))
+    @Operation(summary = "客服对话", description = "用户输入问题，返回客服回复（真实 AI：RAG 注入订单数据；未配置 key 时回退规则模式）", security = @SecurityRequirement(name = "Bearer"))
     public Result<SupportChatResponse> chat(@Valid @RequestBody SupportChatRequest request) {
         Long userId = SecurityUtil.getCurrentUserId();
-        String reply = chatProvider.chat(userId, request.getMessage());
+        ChatProvider provider = selectProvider();
+        String reply = provider.chat(userId, request.getMessage());
         return Result.success(new SupportChatResponse(reply));
+    }
+
+    /** 优先 OpenAI 兼容模型（启用时注册），否则回退首个可用（Mock） */
+    private ChatProvider selectProvider() {
+        return chatProviders.stream()
+                .filter(p -> "openai".equals(p.channel()))
+                .findFirst()
+                .orElseGet(() -> chatProviders.get(0));
     }
 }

@@ -55,9 +55,12 @@ CREATE TABLE IF NOT EXISTS products (
     price        DECIMAL(10,2) NOT NULL,
     stock        INT NOT NULL DEFAULT 0,
     status       VARCHAR(20) NOT NULL DEFAULT 'ON_SALE',
+    image_url    VARCHAR(255) DEFAULT NULL COMMENT '商品图片URL',
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+-- 存量库升级：为 products 表补 image_url 列（新库 CREATE 已含，ALTER 幂等无害）
+ALTER TABLE products ADD COLUMN image_url VARCHAR(255) DEFAULT NULL COMMENT '商品图片URL' AFTER status;
 
 -- ---- 订单商品关联表 ----
 CREATE TABLE IF NOT EXISTS order_items (

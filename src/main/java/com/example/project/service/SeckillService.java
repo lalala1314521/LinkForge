@@ -4,6 +4,7 @@ import com.example.project.common.PageResult;
 import com.example.project.dto.request.SeckillActivityCreateRequest;
 import com.example.project.dto.request.SeckillActivityQueryRequest;
 import com.example.project.dto.response.SeckillActivityResponse;
+import com.example.project.dto.response.SeckillOrderResponse;
 import com.example.project.dto.response.SeckillResult;
 
 import java.util.List;
@@ -25,6 +26,11 @@ public interface SeckillService {
      * 秒杀订单状态查询
      */
     SeckillResult getSeckillOrderStatus(String orderNo);
+
+    /**
+     * 我的秒杀订单列表（userId 从 SecurityUtil 取，不信任前端；含活动名/商品名）
+     */
+    List<SeckillOrderResponse> getMyOrders();
 
     /**
      * 管理：创建活动（校验商品存在/ON_SALE → insert → 预热库存 + 布隆 init）

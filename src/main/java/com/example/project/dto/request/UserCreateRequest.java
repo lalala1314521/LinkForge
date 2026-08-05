@@ -1,5 +1,6 @@
 package com.example.project.dto.request;
 
+import com.example.project.enums.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import  lombok.Data;
@@ -31,5 +32,8 @@ public class UserCreateRequest {
     @Email(message = "邮箱格式不正确")
     @Schema(description = "邮箱", example = "user@example.com")
     private String email;
+
+    @Schema(description = "角色（可选，仅 ADMIN 可指定 ADMIN，否则强制 USER）", example = "USER")
+    private UserRole role;
 
 }

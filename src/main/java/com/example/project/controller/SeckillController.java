@@ -2,6 +2,7 @@ package com.example.project.controller;
 
 import com.example.project.common.Result;
 import com.example.project.dto.response.SeckillActivityResponse;
+import com.example.project.dto.response.SeckillOrderResponse;
 import com.example.project.dto.response.SeckillResult;
 import com.example.project.service.SeckillService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,12 @@ public class SeckillController {
     @Operation(summary = "秒杀订单状态查询", security = @SecurityRequirement(name = "Bearer"))
     public Result<SeckillResult> getOrderStatus(@PathVariable String orderNo) {
         return Result.success(seckillService.getSeckillOrderStatus(orderNo));
+    }
+
+    @GetMapping("/orders/mine")
+    @Operation(summary = "我的秒杀订单列表", description = "按当前登录用户查询（含活动名/商品名），USER 可访问", security = @SecurityRequirement(name = "Bearer"))
+    public Result<List<SeckillOrderResponse>> getMyOrders() {
+        return Result.success(seckillService.getMyOrders());
     }
 
     @GetMapping("/activities")

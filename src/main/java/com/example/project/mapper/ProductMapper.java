@@ -9,8 +9,8 @@ import java.util.List;
 public interface ProductMapper {
 
     @Insert("""
-            INSERT INTO products (name, price, stock, status, created_at, updated_at) 
-            VALUES (#{name}, #{price}, #{stock}, #{status}, NOW(), NOW())
+            INSERT INTO products (name, price, stock, status, image_url, created_at, updated_at) 
+            VALUES (#{name}, #{price}, #{stock}, #{status}, #{imageUrl}, NOW(), NOW())
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Product product);
@@ -19,11 +19,11 @@ public interface ProductMapper {
     Product selectById(Long id);
 
     /**
-     * 更新商品（名称/价格/库存/状态），逻辑下架 delete 也复用本方法（status=OFF_SALE）
+     * 更新商品（名称/价格/库存/状态/图片），逻辑下架 delete 也复用本方法（status=OFF_SALE）
      */
     @Update("""
             UPDATE products SET name = #{name}, price = #{price}, stock = #{stock},
-                   status = #{status}, updated_at = NOW()
+                   status = #{status}, image_url = #{imageUrl}, updated_at = NOW()
             WHERE id = #{id}
             """)
     int update(Product product);

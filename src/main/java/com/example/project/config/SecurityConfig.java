@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/coupons").hasRole("ADMIN")
                         // 秒杀：管理端 ADMIN-only（/api/seckill/admin/**）；用户抢购/查询走 anyRequest().authenticated()
                         .requestMatchers("/api/seckill/admin/**").hasRole("ADMIN")
+                        // 文件上传：仅 ADMIN；静态图片 /uploads/** 必须放行（<img> 请求不带 Authorization）
+                        .requestMatchers(HttpMethod.POST, "/api/files/upload").hasRole("ADMIN")
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs").permitAll()

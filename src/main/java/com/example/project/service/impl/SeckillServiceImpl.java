@@ -7,6 +7,7 @@ import com.example.project.config.BloomFilterConfig;
 import com.example.project.dto.request.SeckillActivityCreateRequest;
 import com.example.project.dto.request.SeckillActivityQueryRequest;
 import com.example.project.dto.response.SeckillActivityResponse;
+import com.example.project.dto.response.SeckillOrderResponse;
 import com.example.project.dto.response.SeckillResult;
 import com.example.project.entity.Product;
 import com.example.project.entity.SeckillActivity;
@@ -119,6 +120,27 @@ public class SeckillServiceImpl implements SeckillService {
         }
         return new SeckillResult(order.getOrderNo(), order.getActivityId(),
                 order.getProductId(), order.getPrice(), order.getStatus());
+    }
+
+    @Override
+    public List<SeckillOrderResponse> getMyOrders() {
+        Long userId = SecurityUtil.getCurrentUserId();   // JWT 取用户，不信任前端
+        List<SeckillOrder> orders = seckillOrderMapper.selectByUserId(userId);
+        return orders.stream().map(order -> {
+            SeckillOrderResponse response = new SeckillOrderResponse();
+            response.setOrderNo(order.getOrderNo());
+            response.setActivityId(order.getActivityId());
+            response.setProductId(order.getProductId());
+            response.setSeckillPrice(order.getPrice());
+            response.setStatus(order.getStatus());
+            response.setCreatedAt(order.getCreatedAt());
+            // 活动名/商品名 null 兜底（活动可能已删除/商品可能已下架）
+            SeckillActivity activity = seckillActivityMapper.selectById(order.getActivityId());
+            response.setActivityName(activity != null && activity.getName() != null ? activity.getName() : "未知活动");
+            Product product = productMapper.selectById(order.getProductId());
+            response.setProductName(product != null && product.getName() != null ? product.getName() : "未知商品");
+            return response;
+        }).toList();
     }
 
     @Override

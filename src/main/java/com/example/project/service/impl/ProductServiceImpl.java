@@ -35,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setStatus(request.getStatus() == null || request.getStatus().isEmpty() ? "ON_SALE" : request.getStatus());
+        product.setImageUrl(request.getImageUrl());
         productMapper.insert(product);
         log.info("[商品] 创建成功：id={}, name={}, price={}, stock={}", product.getId(), product.getName(), product.getPrice(), product.getStock());
         return product.getId();
@@ -53,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
         if (request.getStatus() != null && !request.getStatus().isEmpty()) {
             product.setStatus(request.getStatus());
         }
+        product.setImageUrl(request.getImageUrl());
         productMapper.update(product);
         log.info("[商品] 更新成功：id={}, name={}", id, product.getName());
     }
@@ -97,6 +99,7 @@ public class ProductServiceImpl implements ProductService {
         response.setPrice(product.getPrice());
         response.setStock(product.getStock());
         response.setStatus(product.getStatus());
+        response.setImageUrl(product.getImageUrl());
         response.setCreatedAt(product.getCreatedAt());
         response.setUpdatedAt(product.getUpdatedAt());
         return response;

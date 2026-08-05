@@ -17,6 +17,7 @@ import com.example.project.enums.UserRole;
 import com.example.project.enums.UserStatus;
 import com.example.project.event.UserCreatedEvent;
 import com.example.project.mapper.UserMapper;
+import com.example.project.security.SecurityUtil;
 import com.example.project.service.UserService;
 import com.example.project.util.DesensitizeUtil;
 import com.example.project.util.JwtUtil;
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
         response.setNickname(user.getNickname());
         response.setToken(token);
         response.setExpiresIn(jwtUtil.getExpirationMs() / 1000);
+        response.setRole(user.getRole());
         log.info("用户登录成功 : username = {}", user.getUsername());
         return response;
     }
@@ -78,7 +80,15 @@ public class UserServiceImpl implements UserService {
         user.setNickname(request.getNickname());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
-        user.setRole(UserRole.USER);    // 注册用户一律为普通用户，不允许自提权
+        // 防提权：仅当前登录 ADMIN 可指定 ADMIN 角色，否则一律强制 USER
+        UserRole role = UserRole.USER;
+        if (request.getRole() == UserRole.ADMIN) {
+            if (!SecurityUtil.isAdmin()) {
+                throw new BusinessException(ErrorCode.FORBIDDEN, "仅管理员可创建管理员账号");
+            }
+            role = UserRole.ADMIN;
+        }
+        user.setRole(role);
 
         userMapper.insert(user);
         log.info("用户创建成功：username={}", request.getUsername());

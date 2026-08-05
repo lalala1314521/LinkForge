@@ -27,6 +27,10 @@ public interface SeckillOrderMapper {
     @Select("SELECT * FROM seckill_orders WHERE activity_id = #{activityId}")
     List<SeckillOrder> selectByActivityId(Long activityId);
 
+    /** 我的秒杀订单：按用户查询（倒序，最新在前） */
+    @Select("SELECT * FROM seckill_orders WHERE user_id = #{userId} ORDER BY id DESC")
+    List<SeckillOrder> selectByUserId(Long userId);
+
     @Select("SELECT COUNT(1) FROM seckill_orders WHERE activity_id = #{activityId}")
     long countByActivityId(Long activityId);
 

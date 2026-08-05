@@ -28,6 +28,9 @@ public class Product {
     @Column(name = "status", length = 20, nullable = false)
     private String status = "ON_SALE";
 
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

@@ -1,5 +1,6 @@
 package com.example.project.dto.response;
 
+import com.example.project.enums.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -24,4 +25,7 @@ public class LoginResponse {
 
     @Schema(description = "Token有效期（秒）", example = "86400")
     private long expiresIn;
+
+    @Schema(description = "角色: USER/ADMIN", example = "USER")
+    private UserRole role;
 }

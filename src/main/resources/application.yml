@@ -18,6 +18,12 @@ spring:
       connection-timeout: 30000
       max-lifetime: 1800000
 
+  # ---- 文件上传（multipart）----
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   # ---- JPA / Hibernate ----
   jpa:
     hibernate:
@@ -147,3 +153,7 @@ springdoc:
   api-docs:
     path: /v3/api-docs
   default-produces-media-type: application/json
+
+# ---- 文件上传目录 ----
+file:
+  upload-dir: ./uploads   # 相对项目运行目录（IntelliJ 运行=项目根），WebMvcConfig 转绝对路径

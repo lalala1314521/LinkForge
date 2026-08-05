@@ -30,4 +30,8 @@ public class ProductCreateRequest {
 
     @Schema(description = "状态: ON_SALE/OFF_SALE（默认ON_SALE）", example = "ON_SALE")
     private String status;
+
+    @Size(max = 255, message = "图片URL最多255个字符")
+    @Schema(description = "商品图片URL（/uploads/...）", example = "/uploads/xxx.png")
+    private String imageUrl;
 }

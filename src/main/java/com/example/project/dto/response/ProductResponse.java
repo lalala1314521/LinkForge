@@ -28,6 +28,9 @@ public class ProductResponse {
     @Schema(description = "状态: ON_SALE/OFF_SALE", example = "ON_SALE")
     private String status;
 
+    @Schema(description = "商品图片URL", example = "/uploads/xxx.png")
+    private String imageUrl;
+
     @Schema(description = "创建时间")
     private LocalDateTime createdAt;
 

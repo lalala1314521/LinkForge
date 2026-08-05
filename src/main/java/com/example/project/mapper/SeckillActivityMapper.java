@@ -72,4 +72,14 @@ public interface SeckillActivityMapper {
             """)
     int decrementAvailableStock(Long activityId);
 
+    /**
+     * 取消/超时关单时回加可用库存（条件更新，上限不超 total_stock）
+     */
+    @Update("""
+            UPDATE seckill_activities
+            SET available_stock = available_stock + 1, updated_at = NOW()
+            WHERE id = #{activityId} AND available_stock < total_stock
+            """)
+    int incrementAvailableStock(Long activityId);
+
 }

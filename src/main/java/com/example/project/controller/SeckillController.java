@@ -44,6 +44,20 @@ public class SeckillController {
         return Result.success(seckillService.getMyOrders());
     }
 
+    @PostMapping("/orders/{orderNo}/pay")
+    @Operation(summary = "秒杀订单支付", description = "PENDING→PAID，支付成功发放积分；已支付幂等返回成功", security = @SecurityRequirement(name = "Bearer"))
+    public Result<Void> payOrder(@PathVariable String orderNo) {
+        seckillService.paySeckillOrder(orderNo);
+        return Result.success();
+    }
+
+    @PostMapping("/orders/{orderNo}/cancel")
+    @Operation(summary = "秒杀订单取消", description = "PENDING→CANCELLED，回补库存并释放限购名额；已取消幂等返回成功", security = @SecurityRequirement(name = "Bearer"))
+    public Result<Void> cancelOrder(@PathVariable String orderNo) {
+        seckillService.cancelSeckillOrder(orderNo);
+        return Result.success();
+    }
+
     @GetMapping("/activities")
     @Operation(summary = "在售秒杀活动列表", security = @SecurityRequirement(name = "Bearer"))
     public Result<List<SeckillActivityResponse>> listActivities() {

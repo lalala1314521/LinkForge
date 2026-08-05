@@ -23,9 +23,24 @@ public interface SeckillService {
     SeckillResult doSeckill(Long activityId);
 
     /**
-     * 秒杀订单状态查询
+     * 秒杀订单状态查询（归属校验：只能查自己的单）
      */
     SeckillResult getSeckillOrderStatus(String orderNo);
+
+    /**
+     * 秒杀订单支付：PENDING→PAID（归属校验 + 条件更新防并发 + 幂等），支付成功发放积分
+     */
+    void paySeckillOrder(String orderNo);
+
+    /**
+     * 秒杀订单取消：PENDING→CANCELLED（归属校验 + 条件更新），成功回加 Redis 库存 + DB 库存 + 释放限购名额
+     */
+    void cancelSeckillOrder(String orderNo);
+
+    /**
+     * 超时关单任务用：无归属校验，PENDING→CANCELLED + 回库存（内部方法）
+     */
+    void cancelSeckillOrderByTimeout(String orderNo);
 
     /**
      * 我的秒杀订单列表（userId 从 SecurityUtil 取，不信任前端；含活动名/商品名）

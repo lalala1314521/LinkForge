@@ -166,3 +166,11 @@ notification:
   sms:
     enabled: false
     sign: LinkForge
+
+# ---- AI 智能客服配置（DeepSeek / OpenAI 兼容协议）----
+support:
+  ai:
+    enabled: true                          # true=启用真实大模型（填 key 后生效）；false=回退规则客服
+    base-url: https://api.deepseek.com/v1  # DeepSeek 官方兼容地址（通义/Kimi/智谱改对应 base-url 即可）
+    api-key: ""                            # ★ 在这里填你的 DeepSeek API Key（sk- 开头），填完重启生效
+    model: deepseek-chat                   # 模型名（DeepSeek: deepseek-chat / deepseek-reasoner）

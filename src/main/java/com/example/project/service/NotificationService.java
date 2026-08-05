@@ -14,6 +14,11 @@ public interface NotificationService {
     void sendOrderPaidNotify(Long userId, String orderNo);
 
     /**
+     * 订单发货通知
+     */
+    void sendOrderShippedNotify(Long userId, String orderNo);
+
+    /**
      * 订单取消通知
      */
     void sendOrderCancelledNotify(Long userId, String orderNo);

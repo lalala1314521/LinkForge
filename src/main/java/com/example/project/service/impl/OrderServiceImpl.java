@@ -31,6 +31,7 @@ import com.example.project.mq.dto.OrderPaidMessage;
 import com.example.project.security.SecurityUtil;
 import com.example.project.service.CouponService;
 import com.example.project.service.InventoryService;
+import com.example.project.service.NotificationService;
 import com.example.project.service.OrderService;
 import com.example.project.service.ReliableMessageService;
 import com.example.project.util.DistributedLockUtil;
@@ -61,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
     private final InventoryService inventoryService;
     private final ReliableMessageService reliableMessageService;
     private final CouponService couponService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -251,6 +253,44 @@ public class OrderServiceImpl implements OrderService {
         String messageKey = String.valueOf(order.getUserId());
         Long msgId = reliableMessageService.savePendingMessage(MqConstants.TOPIC_ORDER_CANCELLED, messageKey, msg);
         reliableMessageService.sendAfterCommit(msgId, MqConstants.TOPIC_ORDER_CANCELLED, messageKey, msg);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void shipOrder(Long id) {
+        if (!SecurityUtil.isAdmin()) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+        Order order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+        }
+        // 条件更新 PAID→SHIPPED：影响行数 0 → 非待发货状态（幂等/防并发）
+        if (orderMapper.updateStatusIfPaid(id, OrderStatus.SHIPPED) == 0) {
+            throw new BusinessException(ErrorCode.ORDER_STATUS_INVALID);
+        }
+        // 发货通知（provider 化预留：日志→后续接邮件/短信）
+        try {
+            notificationService.sendOrderShippedNotify(order.getUserId(), order.getOrderNo());
+        } catch (Exception e) {
+            log.warn("[发货] 发货通知发送失败：orderNo={}, error={}", order.getOrderNo(), e.getMessage());
+        }
+        log.info("[发货] 订单{} 已发货", id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmReceipt(Long id) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        Order order = orderMapper.selectById(id);
+        if (order == null) {
+            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+        }
+        // 归属校验 + 条件更新 SHIPPED→COMPLETED
+        if (orderMapper.updateStatusIfShipped(id, userId, OrderStatus.COMPLETED) == 0) {
+            throw new BusinessException(ErrorCode.ORDER_STATUS_INVALID);
+        }
+        log.info("[收货] 用户{} 确认收货，订单{}", userId, id);
     }
 
     @Override

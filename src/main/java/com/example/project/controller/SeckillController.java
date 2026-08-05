@@ -58,6 +58,13 @@ public class SeckillController {
         return Result.success();
     }
 
+    @PostMapping("/orders/{orderNo}/refund")
+    @Operation(summary = "秒杀订单退款", description = "PAID→REFUNDED（已支付售后），回补库存并释放限购名额、积分回退；已退款幂等返回成功", security = @SecurityRequirement(name = "Bearer"))
+    public Result<Void> refundOrder(@PathVariable String orderNo) {
+        seckillService.refundSeckillOrder(orderNo);
+        return Result.success();
+    }
+
     @GetMapping("/activities")
     @Operation(summary = "在售秒杀活动列表", security = @SecurityRequirement(name = "Bearer"))
     public Result<List<SeckillActivityResponse>> listActivities() {

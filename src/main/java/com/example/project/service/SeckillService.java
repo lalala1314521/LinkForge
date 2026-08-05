@@ -38,6 +38,11 @@ public interface SeckillService {
     void cancelSeckillOrder(String orderNo);
 
     /**
+     * 秒杀订单退款（已支付）：PAID→REFUNDED（归属校验 + 条件更新 + 幂等），回加库存 + 释放限购 + 积分回退
+     */
+    void refundSeckillOrder(String orderNo);
+
+    /**
      * 超时关单任务用：无归属校验，PENDING→CANCELLED + 回库存（内部方法）
      */
     void cancelSeckillOrderByTimeout(String orderNo);

@@ -26,6 +26,16 @@ public interface OrderService {
     void cancelOrder(Long id);
 
     /**
+     * 发货（管理员）：PAID→SHIPPED（条件更新防并发），触发发货通知
+     */
+    void shipOrder(Long id);
+
+    /**
+     * 确认收货（本人）：SHIPPED→COMPLETED（归属校验 + 条件更新）
+     */
+    void confirmReceipt(Long id);
+
+    /**
      * 超时关单（定时任务用）：条件更新 PENDING→CANCELLED（影响行数 0 跳过，幂等）→ 走本地消息表发送取消消息。
      * 与 cancelOrder 区别：不校验 SecurityContext 归属（系统任务），条件更新防并发重复处理。
      */

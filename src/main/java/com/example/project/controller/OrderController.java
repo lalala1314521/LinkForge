@@ -112,4 +112,28 @@ public class OrderController {
         orderService.cancelOrder(id);
         return Result.success();
     }
+
+    /**
+     * POST /api/orders/{id}/ship
+     * 发货（管理员）：PAID→SHIPPED，触发发货通知
+     */
+    @PostMapping("/{id}/ship")
+    @Operation(summary = "订单发货", description = "管理员发货（PAID→SHIPPED），触发发货通知", security = @SecurityRequirement(name = "Bearer"))
+    @Parameter(name = "id", description = "订单ID", example = "1", required = true)
+    public Result<Void> shipOrder(@PathVariable Long id) {
+        orderService.shipOrder(id);
+        return Result.success();
+    }
+
+    /**
+     * POST /api/orders/{id}/confirm
+     * 确认收货（本人）：SHIPPED→COMPLETED
+     */
+    @PostMapping("/{id}/confirm")
+    @Operation(summary = "确认收货", description = "买家确认收货（SHIPPED→COMPLETED），归属校验", security = @SecurityRequirement(name = "Bearer"))
+    @Parameter(name = "id", description = "订单ID", example = "1", required = true)
+    public Result<Void> confirmReceipt(@PathVariable Long id) {
+        orderService.confirmReceipt(id);
+        return Result.success();
+    }
 }

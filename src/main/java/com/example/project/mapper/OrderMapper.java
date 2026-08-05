@@ -50,6 +50,18 @@ public interface OrderMapper {
     int updateStatusIfPending(@Param("id") Long id, @Param("status") OrderStatus status);
 
     /**
+     * 发货：仅当 status='PAID' 时更新为 SHIPPED（管理员发货，影响行数 0 = 非待发货状态）
+     */
+    @Update("UPDATE orders SET status=#{status}, updated_at=NOW() WHERE id=#{id} AND status='PAID'")
+    int updateStatusIfPaid(@Param("id") Long id, @Param("status") OrderStatus status);
+
+    /**
+     * 确认收货：仅当 status='SHIPPED' 且属于该用户时更新为 COMPLETED（归属校验）
+     */
+    @Update("UPDATE orders SET status=#{status}, updated_at=NOW() WHERE id=#{id} AND status='SHIPPED' AND user_id=#{userId}")
+    int updateStatusIfShipped(@Param("id") Long id, @Param("userId") Long userId, @Param("status") OrderStatus status);
+
+    /**
      * 扫描超时未支付订单（status=PENDING 且创建时间早于阈值），供超时关单任务使用
      */
     @Select("SELECT * FROM orders WHERE status='PENDING' AND created_at < #{timeoutBefore} ORDER BY created_at ASC")

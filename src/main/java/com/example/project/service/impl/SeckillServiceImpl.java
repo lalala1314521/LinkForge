@@ -170,6 +170,28 @@ public class SeckillServiceImpl implements SeckillService {
         log.info("[秒杀超时关单] 秒杀单{} 已取消，库存回补", orderNo);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void refundSeckillOrder(String orderNo) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        SeckillOrder order = requireOwnedOrder(orderNo, userId);
+        int rows = seckillOrderMapper.updateStatusByOrderNo(orderNo, userId, "REFUNDED");
+        if (rows == 0) {
+            if ("REFUNDED".equals(order.getStatus())) {
+                return; // 幂等：已退款视为成功
+            }
+            throw new BusinessException(ErrorCode.SECKILL_ORDER_STATUS_INVALID);
+        }
+        releaseStock(order);
+        // 积分回退（幂等：points_log uk_order_type 唯一键，REFUND 只退一次）
+        try {
+            pointsService.refund(userId, orderNo);
+        } catch (Exception e) {
+            log.warn("[秒杀退款] 积分回退失败：orderNo={}, error={}", orderNo, e.getMessage());
+        }
+        log.info("[秒杀退款] 用户{} 秒杀单{} 退款成功，库存回补", userId, orderNo);
+    }
+
     /** 归属校验：订单存在且属于当前用户（防越权） */
     private SeckillOrder requireOwnedOrder(String orderNo, Long userId) {
         SeckillOrder order = seckillOrderMapper.selectByOrderNo(orderNo);

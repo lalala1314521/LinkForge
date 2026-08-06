@@ -1,4 +1,8 @@
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update    # 生产：自动补建新表/列（演示部署；正式迁移建议 Flyway/Liquibase）
+    show-sql: false
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -7,7 +11,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD:}    # 本地/演示 Redis 无密码；有密码时通过环境变量注入
   # 批次4：prod 环境 Kafka 配置环境变量化（修复"未配置 Kafka 落回 localhost 写死值"问题）
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

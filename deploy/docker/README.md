@@ -22,8 +22,10 @@ docker compose up -d --build
 | 前端（商城+管理后台） | http://localhost:3000 | `admin` / `Test@1234` |
 | 后端 API | http://localhost:8080 | — |
 | Swagger 文档 | http://localhost:8080/swagger-ui.html | — |
-| MySQL | localhost:3306（root/123456） | — |
-| Redis | localhost:6379 | — |
+| MySQL | localhost:**3307**（root/123456） | — |
+| Redis | localhost:**6380** | — |
+
+> 注：MySQL/Redis 宿主端口已避开本机开发环境（3306/6379 被本地占用）；容器内部仍走 3306/6379，不影响后端连接。
 
 ## 四、做了什么（部署细节）
 

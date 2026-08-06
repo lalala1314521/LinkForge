@@ -19,7 +19,7 @@ services:
       # 首次启动执行：建表 + 种子（admin/商品/优惠券/秒杀活动）
       - ./deploy/docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "3306:3306"     # 与本地 MySQL 冲突时可注释掉（容器间网络不受影响）
+      - "3307:3306"     # 宿主 3307 → 容器 3306（本机 MySQL 占用 3306 已避开；连库用 localhost:3307 root/123456）
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456"]
       interval: 10s
@@ -31,7 +31,7 @@ services:
     image: redis:7-alpine
     container_name: linkforge-redis
     ports:
-      - "6379:6379"     # 与本地 Redis 冲突时可注释掉
+      - "6380:6379"     # 宿主 6380 → 容器 6379（本机 Redis 占用 6379 已避开）
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

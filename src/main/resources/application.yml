@@ -87,7 +87,8 @@ mybatis:
 
 # ---- JWT ----
 jwt:
-  secret: "SpringBootTutorialSecretKey_MinLength_32chars_OK"
+  # 开发默认值仅用于本地；生产/Docker 必须通过环境变量 JWT_SECRET 覆盖（prod profile 已强制 ${JWT_SECRET}）
+  secret: ${JWT_SECRET:SpringBootTutorialSecretKey_MinLength_32chars_OK}
   expiration-ms: 86400000   # 24 小时
 
 # ---- 接口限流阈值 ----

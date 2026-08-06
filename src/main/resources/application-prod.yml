@@ -11,7 +11,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}    # 本地/演示 Redis 无密码；有密码时通过环境变量注入
+      # password: ${REDIS_PASSWORD}   # Redis 有密码时取消注释并注入 REDIS_PASSWORD（空值会使 Redisson 误发 AUTH 导致连接失败，无密码 Redis 保持不配置）
   # 批次4：prod 环境 Kafka 配置环境变量化（修复"未配置 Kafka 落回 localhost 写死值"问题）
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

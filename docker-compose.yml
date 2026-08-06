@@ -40,7 +40,7 @@ services:
 
   # ---------- Kafka（KRaft 单节点，无 Zookeeper）----------
   kafka:
-    image: bitnami/kafka:4.0
+    image: bitnami/kafka:3.9    # 4.0 镜像在国内源未缓存（429/403），3.9 同为 KRaft 且源内可用
     container_name: linkforge-kafka
     environment:
       KAFKA_CFG_NODE_ID: 0
@@ -93,7 +93,7 @@ services:
   # ---------- 前端（Vite 构建 → Nginx）----------
   frontend:
     build:
-      context: ../referenceFrontEndUp
+      context: F:/vscode/referenceFrontEndUp   # 前端项目实际位置（绝对路径）
       dockerfile: Dockerfile
     container_name: linkforge-frontend
     ports:

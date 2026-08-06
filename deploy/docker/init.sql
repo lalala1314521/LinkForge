@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS products (
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
--- 存量库升级：为 products 表补 image_url 列（新库 CREATE 已含，ALTER 幂等无害）
-ALTER TABLE products ADD COLUMN image_url VARCHAR(255) DEFAULT NULL COMMENT '商品图片URL' AFTER status;
+
+-- 注：products 建表已含 image_url 列，不再 ALTER（避免新库重复加列报 1060）
 
 -- ---- 订单商品关联表 ----
 CREATE TABLE IF NOT EXISTS order_items (
@@ -210,10 +210,10 @@ CREATE TABLE IF NOT EXISTS seckill_orders (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='秒杀订单表';
 
 -- ---- 测试数据----
--- 密码均为 Test@1234（BCrypt 加密，哈希已核验）
+-- 密码均为 Test@1234（BCrypt 加密，哈希已与本地库核验一致）
 INSERT INTO users (username, password, nickname, phone, email, role) VALUES
-('admin',   '$2a$12$MNk//9.L.Bz2Fw.O0mY27UeK5IcQYvSvMOEFvfSCjBzZWLvvbC7lB6', '管理员', '13800138000', 'admin@example.com', 'ADMIN'),
-('testuser','$2a$12$MNk//9.L.Bz2Fw.O0mY27UeK5IcQYvSvMOEFvfSCjBzZWLvvbC7lB6', '测试用户', '13900139000', 'test@example.com', 'USER')
+('admin',   '$2a$12$MNk//9L.Bz2Fw.O0mY27UeK5IcQYvSvMOEFvfSCjBzZWLvvbC7lB6', '管理员', '13800138000', 'admin@example.com', 'ADMIN'),
+('testuser','$2a$12$MNk//9L.Bz2Fw.O0mY27UeK5IcQYvSvMOEFvfSCjBzZWLvvbC7lB6', '测试用户', '13900139000', 'test@example.com', 'USER')
 ON DUPLICATE KEY UPDATE role = VALUES(role), updated_at = updated_at;
 
 -- ---- 商品种子数据（便于手工冒烟，正式环境可删）----

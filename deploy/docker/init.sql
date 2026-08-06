@@ -9,6 +9,9 @@ CREATE DATABASE IF NOT EXISTS demo_db
 
 USE demo_db;
 
+-- 关键：初始化脚本执行时强制 utf8mb4 客户端连接（否则中文种子会被 latin1 双重编码导致乱码）
+SET NAMES utf8mb4;
+
 -- ---- 用户表 ----
 CREATE TABLE IF NOT EXISTS users (
     id          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',

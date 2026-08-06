@@ -1,0 +1,108 @@
+# ============================================================
+# LinkForge 全栈 Docker 编排（MySQL + Redis + Kafka + 后端 + 前端）
+# 使用：docker compose up -d --build
+# 访问：前端 http://localhost:3000  （admin / Test@1234）
+# ============================================================
+
+services:
+  # ---------- MySQL 8 ----------
+  mysql:
+    image: mysql:8.0
+    container_name: linkforge-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: demo_db
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 首次启动执行：建表 + 种子（admin/商品/优惠券/秒杀活动）
+      - ./deploy/docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"     # 与本地 MySQL 冲突时可注释掉（容器间网络不受影响）
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ---------- Redis ----------
+  redis:
+    image: redis:7-alpine
+    container_name: linkforge-redis
+    ports:
+      - "6379:6379"     # 与本地 Redis 冲突时可注释掉
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ---------- Kafka（KRaft 单节点，无 Zookeeper）----------
+  kafka:
+    image: bitnami/kafka:4.0
+    container_name: linkforge-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/bitnami/kafka
+
+  # ---------- 后端（Spring Boot）----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkforge-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # DB / Redis / Kafka 全部走容器服务名（prod 配置环境变量化）
+      DB_URL: "jdbc:mysql://mysql:3306/demo_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8"
+      DB_USERNAME: root
+      DB_PASSWORD: "123456"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: "LinkForge_Docker_Deploy_Secret_Key_2026_HS384_OK_0123456789"
+      FILE_UPLOAD_DIR: /app/uploads
+      # AI 客服：如需真实 DeepSeek，填你的 Key 并取消注释（支持.ai.enabled 默认 true）
+      # SUPPORT_AI_API_KEY: "sk-xxxx"
+      TZ: Asia/Shanghai
+    volumes:
+      - uploads-data:/app/uploads
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+
+  # ---------- 前端（Vite 构建 → Nginx）----------
+  frontend:
+    build:
+      context: ../referenceFrontEndUp
+      dockerfile: Dockerfile
+    container_name: linkforge-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  kafka-data:
+  uploads-data:

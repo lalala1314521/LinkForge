@@ -156,7 +156,7 @@ springdoc:
 
 # ---- 文件上传目录 ----
 file:
-  upload-dir: ./uploads   # 相对项目运行目录（IntelliJ 运行=项目根），WebMvcConfig 转绝对路径
+  upload-dir: ${FILE_UPLOAD_DIR:./uploads}   # 相对项目运行目录（IntelliJ 运行=项目根）；Docker 部署注入 /app/uploads
 
 # ---- 通知渠道配置（预留邮箱/短信，默认关闭仅日志；接运营商时置 true 并实现 Provider）----
 notification:
